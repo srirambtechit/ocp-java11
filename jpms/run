@@ -1,0 +1,21 @@
+#!/bin/zsh
+
+[ -d mods ] && { rm -rf mods; mkdir mods } 
+[ -d apple/classes ] && rm -rf apple/classes
+[ -d banana/classes ] && rm -rf banana/classes
+
+javac -d banana/classes banana/src/**/*.java || exit
+jar -cf mods/banana.jar -C banana/classes .
+
+javac -p mods/banana.jar -d apple/classes apple/src/**/*.java || exit
+jar -cf mods/apple.jar -C apple/classes .
+
+# unnamed module access another unnamed module - Works
+# java -cp mods/banana.jar:mods/apple.jar pkg.apple.Apple
+
+# automatic module access explicit module - NOT worked
+# java -p mods -m apple/pkg.apple.Apple
+# just by adding module at command line, it resolves the problem
+# java -p mods --add-modules com.banana -m apple/pkg.apple.Apple
+
+

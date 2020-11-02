@@ -1,0 +1,2234 @@
+watch out:
+1. interface Action {}
+new Action() // compilation error
+new Action() {} // works like a charm
+
+2. abstract class Listener {}
+new Listener() // compilation failed
+new Listener() {} // works good
+
+3. final class Danger {}
+new Danger() // It's fine
+new Danger() {} // won't work, final cannot be extended
+
+4. watch out for static context
+   instance variable can use static variable or methods
+	 static method cannot use instance methods or variables
+
+5. DIAMOND PROBLEM - multiple interface inheritance, 
+   check for overloaded version of same method override
+   below code won't compile as it is not overriding test()
+   ex: interface A { default void test() {} }
+	     interface B { default void test() {} }
+			 interface C extends A, B {
+			 	default void test(int a) {} 
+			 }
+
+6. static/inner class OBJECT creation
+		 class Lion {
+		   static class Den {}
+		 	 class Cub {}
+		 }
+6.a) inner class - instance creation
+     var c = new Lion().new Cub();
+     Cub c1 = new Lion().new Cub();
+		 Lion.Cub c2 = new Lion().new Cub();
+6.b) static inner class - instance creation
+     var d = new Lion.Den();
+		 Den d1 = new Lion.Den();
+     Lion.Den d2 = new Lion.Den();
+
+7. In non-static inner class with static final variable compiles 
+   whereas final varaible alone won't compile successfully
+	 e.g public class Theater {
+	       class TicketCounter {
+				   public static int token = 0; // Not compile
+					 public static final float price = 2.3; // compiles
+				 }
+	     }
+
+8. a) Be aware, enum constructors are implicitly private
+	 b) ; required after last enum type if it has any methods/constructor, etc.
+
+9. inner class allowed to have modifier "protected final" together
+   e.g public class Favourites {
+	       protected final class IceCream {} 
+			 }
+
+jdeps mods/apple.jar
+jdeps -v mods/apple.jar
+jdeps -s mods/apple.jar
+jdeps --module-path mods -m com.apple
+
+java module describe
+https://github.com/boyarsky/sybex-1Z0-815-chapter-11
+
+The java Command
+
+--show-module-resolution exists?
+java
+
+--module-path exists?
+java
+javac
+jdeps
+jar (create mode)
+jmod
+
+valid modes of jmods command?
+create 
+extract 
+describe
+list
+hash
+
+Describing a module:
+java -p mods -d zoo.animal.feeding
+
+Alternate form of describing a module
+java -p mods --describe-module zoo.animal.feeding
+
+Listing available modules in JDK:
+java --list-modules
+
+Listing available modules including ours:
+java -p mods --list-modules
+
+Showing Module Resolution:
+java --show-module-resolution -p feeding -m zoo.animal.feeding/zoo.animal.feeding.Task
+
+The jar Command
+
+Describing a module:
+
+jar -f mods/zoo.animal.feeding.jar -d
+Alternate form of describing a module:
+
+jar --file mods/zoo.animal.feeding.jar --describe-module
+
+The jdeps Command
+
+Listing dependencies
+
+jdeps -s mods/zoo.animal.feeding.jar
+Alternate form of listing dependencies:
+
+jdeps -summary mods/zoo.animal.feeding.jar
+Listing dependencies with module path
+
+jdeps -s --module-path mods mods/zoo.animal.care.jar
+Alternate form of listing dependencies with module path
+
+jdeps -summary --module-path mods mods/zoo.animal.care.jar
+
+JPMS
+- why?
+- class path vs module path
+- Unnamed module
+	- regular jar
+	- on module-path
+	- don't export any packages to named/automatic modules
+	- read from any jar on class/module-path
+	
+- automatic module
+  - regular jar
+	- on module-path
+	- naming of module
+	  - Automatic-Module-Name entry in MANIFEST.MF
+		- jar file name
+		  - no extension
+			- no version
+			- convert dash (-) to dot (.)
+	- exports all package automatically to named modules
+	- exports + requires
+	- no access to class-path
+	
+- Named module
+  - module-info.java
+	- modular jar
+	- on module-path
+	- no access to class-path
+	
+- JDK modules
+  - java.base
+
+- jdeps
+  - option -jdkinternals or --jdk-internals
+
+- migration strategy
+  - BOTTOM-UP 
+	  - working from bottom of the dep graph (meaning start from indep jar)
+	  - eg: A -> B -> C
+		- move C to mod path (named), A and B still be in class path (unnamed)
+		- add module-info, exports, requires, etc, no worry about dep as it is not having one dep
+		- move B to mod path (named), A still be in class path, C already on mod path
+		- move C to mod path (named)
+		- All jars are now modular
+	- TOP-DOWN
+	  - reason: not all jars are owned by us, have dep with other team
+		- place all jars (A, B, C) to mod path.. A -> B -> C
+		- pick highest level jar which is not yet migrated (here it is A)
+		- add module-info, exports, requires etc based on automatic module (B, C) on mod path
+		- repeat last steps for B and C
+		- All jars are now modular
+
+- service pattern
+  - service provider interface (SPI)
+	- service provider (SP)
+	- service locator (SL)
+	- service consumer (SC)
+	- diagram
+     +----- SPI <---SC
+     |       ^      |
+     |       |      |
+     |       |      |
+     |       |      |
+     v       |   	  |
+     SP <-- SL <----+  
+
+Consider all 4 modules designed independently
+
+service provider interface
+ - defines interface and its method (contract)
+ - defines spi-module by exporting spi package
+ - module-info
+   - exports its package
+service locator
+ - lookup all impl just by invoking ServiceLoader.load(T.class): Iterator<T>
+ - module-info
+   - exports its package
+   - requires spi-module
+	 - uses spi-name
+		 (uses SpiInterfaceName/SpiAbstractClass;)
+service consumer
+ - consumes APIs of spi
+ - module-info
+   - requries service locator module
+service provider
+ - provides an impl for spi
+ - module-info
+	 - requires spi-module
+	 - provides spi with fqcn
+     (provides interfaceName with ImplclassName;)
+
+Any version information at the end of the JAR filename is removed, making options A and B correct. Underscores (_) are turned into dots (.), making options C and D incorrect. Other special characters like a dollar sign ($) are also turned into dots. However, adjacent dots are merged, and leading/trailing dots are removed. 
+
+Compiled from "ServiceLoader.java"
+public interface java.util.ServiceLoader$Provider<S> extends java.util.function.Supplier<S> {
+  public abstract java.lang.Class<? extends S> type();
+  public abstract S get();
+}
+
+Compiled from "ServiceLoader.java"
+public final class java.util.ServiceLoader<S> implements java.lang.Iterable<S> {
+
+  public java.util.Iterator<S> iterator();
+  public java.util.stream.Stream<java.util.ServiceLoader$Provider<S>> stream();
+	
+  static <S> java.util.ServiceLoader<S>        load(java.lang.Class<S>, java.lang.ClassLoader, java.lang.Module);
+  public static <S> java.util.ServiceLoader<S> load(java.lang.Class<S>, java.lang.ClassLoader);
+  public static <S> java.util.ServiceLoader<S> load(java.lang.Class<S>);
+  public static <S> java.util.ServiceLoader<S> loadInstalled(java.lang.Class<S>);
+  public static <S> java.util.ServiceLoader<S> load(java.lang.ModuleLayer, java.lang.Class<S>);
+  public java.util.Optional<S> findFirst();
+  public void reload();
+  public java.lang.String toString();
+  static {};
+}
+
+- Module directive
+  - exports pkg
+	- exports pkg to mod
+	- requires mod
+	- requires transitive mod
+	- requires static mod
+	- opens pkg
+	- opens pkg to mod
+	- open module
+	- provides type to mod
+	- uses type
+
+A(n) ________________ module can reference classes in a(n) _______________ module. 
+Assume the package is exported as needed. (Choose all that apply.)
+
+A. automatic, named
+B. automatic, unnamed
+C. named, automatic
+D. named, unnamed
+E. unnamed, automatic
+F. unnamed, named
+G. None of the above
+	
+lib-dev team
+dev1
+module a {
+ exports pkg.a;
+ requires static a.util;
+}
+
+requires static - optional dependency
+
+Problem:-
+ but dev1 wants to pretty print, so he decides to create a new module as follows
+module a.util {
+ exports pkg.a.util;
+}
+
+Sample:-
+	BEFORE:               |  AFTER:
+		pkg.a;              |  	 pkg.a;
+		                    |  	 impt pkg.a.util.Pretty;
+		class ExtApi        |  	 class ExtApi
+		                    |      //It is utilizing Pretty.it() from a.util module
+			printData(data) { |  	   printData(data){
+			  	sout(data);   |  	 		sout(Pretty.it(data));
+      }                 | 	 	 }
+												|
+		output:             |  	 output:
+     stock@2345         | 	 {
+                        | 	  "stock": "$1,230"
+                        | 	 }
+
+app-dev team
+dev1
+module b {
+ requires a;
+}
+
+b -> a [ -> a.util ]
+
+Few more points on JPMS:
+ - jmods & modular jar
+ - jmods used only for jdk, we can't create
+ - jdk 8-, defines dependency between just the tyeps (classes)
+ - jdk 9+, defines dependency between jars           (modules)
+ - jpms enforces cheks at 3 phase compile/linking/runtimes
+ - dep check performed at compile/runtime
+ - application fail-fast when
+   - missing modules
+	 - found cyclic dep
+	 - lack of access to other module
+ - Module types
+   - application module (app/library/framework related)
+	 - initial module (java/javac use this)
+	 - root module (to resolve modules)
+	 - platform module (JDK specific)
+	 - incubator module (experimental APIs, module starts with jdk.incubator)
+	 - system module (app + platform module)
+	 - observable module (platform module at runtime, app module at cmd line)
+	 - base module (java.base module)
+	 - explicit modules (module descriptor exists)
+	 - automatic modules (plain jar on module path)
+	 - named modules (explicit & automatic modules which have name, defined by descriptor or inferred by JPMS)
+	 - unnamed modules (module aren't named but found in classpath)
+ - No transitive dep check at compile time but does at runtime
+   - module A, B, C where A -> B, B -> C hence A -> C (transitive dep)
+ - Java allows only one service provider for service provider interface in a module
+ - module talks about architecutre of the project
+ - class talks about logic or internals
+ - services:
+   - provides loose coupling
+	 - 1 module request implements of an interface
+	 - other module provides and implementation
+
+Useful resources:
+1. An Early look at Java 9 Modules by BenEvans
+2. Understanding Java 9 Modules by Paul Deitel
+3. Inside JDK 9 (Java Magazine)
+4. Working with OSGi and Java 9 Modules by Eric J. Bruno
+5. The state of the module system
+
+
+Books
+1. Java 9 Modularity by Sander Mar, Paul Bakker from O'Reilly Media Inc.
+2. The Java Module System by Nicolai Parlog from Manning Publications
+
+Java 1-8
++-----------public------------+
+| +--------protected--------+ |
+| | +---package-private-+ | | |
+| | | +----private---+  | | | |
+| | | |  +--------+  |  | | | |
+| | | |  | member |  |  | | | |
+
+Java 9+
++---------opens to qualified exports-------+
+| +-----------opens to exports-----------+ |
+| | +---public to qualified exports ---+ | |
+| | | +------public to exports-------+ | | |
+| | | | +---------public-----------+ | | | |
+| | | | | +-------protected------+ | | | | |
+| | | | | | +--package-private-+ | | | | | |
+| | | | | | | +----private---+ | | | | | | |
+| | | | | | | | +----------+ | | | | | | | |
+| | | | | | | | |  member  | | | | | | | | |
+
+     modulepath               classpath
+        EM            |           UM
+         | <----------X---------- |
+         V            |           |
+        EM -----------X---------> UM
+         |            |           |
+         V            |           |
+        AM ---------------------> |
+         |            |           |
+         V            |           V
+        AM <----------X---------- UM
+                      |
+											|
+Valid:
+- unnamed can access another unnamed module
+- unnamed cannot access explicit module
+- unnamed cannot access automatic module
+
+- automatic can access unnamed module
+- automatic cannot access explicit module
+- automatic can access another automatic module
+
+- explicit can access explicit module (module-descriptor)
+- explicit can access automatic module
+- explicit cannot access unnamed module
+
+            Unnamed  Explicit   Automatic   
+				          	 
+Explicit       N        Y           Y       
+                  
+Automatic      Y        N           Y       
+                  
+Unnamed        Y        N           N       
+
+
+
+
+Collections & Streams:
+
+https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps
+
+Usecases:
+ 1. Group all employess based on their salary (100, 200, 300) Map<Integer, List<Employee>> 
+ 2. Group all name of employee based on salary Map<Integer, List<String>>
+ 3. Group unique employees based on their salary Map<Integer, Set<Employee>>
+ 4. Calculate average age of all employees
+ 5. Calculate average age of all employees whose name starts with "J"
+ 6. Get male, female employees list separately
+ 7. Convert elements to strings and concatenate them, separated by commas
+ 8. Accumulate employee names into a List
+ 9. Accumulate employee names into a TreeSet
+10. Compute sum of salaries of employee
+11. Group employees by department
+12. Compute sum of salaries by department
+13. Partition students into passing and failing
+
+Collections & Streams:-
+Collectors
+	static <T,​A,​R,​RR> Collector<T,​A,​RR> collectingAndThen​(
+	              Collector<T,​A,​R> downstream, Function<R,​RR> finisher)
+
+	counting()
+	
+	filtering(Predicate p, Collector downstream)
+	
+	groupingBy(Function classifier)
+	groupingBy(Function classifier, Collector downstream)
+	groupingBy(Function classifier, Supplier mapFactory, Collector downstream)
+
+	joining()
+	joining(CharSequence delimiter)
+	joining(CharSequence delimiter, CharSequence prefix, CharSequence suffix)
+
+	mapping(Function mapper, Collector downstream)
+
+	minBy(Comparator comp)
+	maxBy(Comparator comp)
+	
+	partitioningBy(Predicate p)
+	partitioningBy(Predicate p, Collector downstream)
+
+	reducing(BinaryOperator combiner)
+	reducing(T identity, BinaryOperator combiner)
+	reducing(T identity, Function accumulator, BinaryOperator combiner)
+	
+	// To get statistics-summary/sum/average when the stream of Integer/Long/Double exists  [transformation on Obj -> int]
+	summarizingInt(ToIntFunction mapper)
+	summingInt(ToIntFunction mapper)
+	summarizingLong(ToLongFunction mapper)
+	summingLong(ToLongFunction mapper)
+	summarizingDouble(ToDoubleFunction mapper)
+	summingDouble(ToDoubleFunction mapper)
+  averagingDouble(ToDoubleFunction fn)
+	averagingInt(ToIntFunction fn)
+	averagingLong(ToLongFunction fn)
+	
+	toList()
+	toUnmodifiableList()
+	toSet()
+	toUnmodifiableSet()
+	toMap(Function keyMapper, Function valueMapper)
+	toMap(Function keyMapper, Function valueMapper, BinaryOperator mergeFn)
+	toMap(Function keyMapper, Function valueMapper, BinaryOperator mergeFn, Supplier mapFactory)	
+	toCollection(Supplier collectionFactory)
+	
+                                          input | output
+																					------+-------
+Predicate<T>         -> boolean test(T t)   Y   |   Y
+Function<T, R>       -> R apply(T t)        Y   |   Y
+Consumer<T>          -> void accept(T t)    Y   |   N
+Supplier<T>          -> T get()             N   |   Y
+Runnable             -> void run()          N   |   N
+Callable<T>          -> T call()            N   |   Y
+
+BiPredicate<T, U>    -> boolean test(T t, U u)
+BiFunction<T, U, R>  -> R apply(T t, U u)
+BiConsumer<T, U>     -> void accept(T t, U u)
+
+UnaryOperator<T>     -> T apply(T t)
+BinaryOperator<T>    -> T apply(T t1, T t2)
+
+javap java.util.function.BooleanSupplier
+Compiled from "BooleanSupplier.java"
+public interface java.util.function.BooleanSupplier {
+  public abstract boolean getAsBoolean();
+}
+
+
+IntStream: input is always "int"
+  IntStream    map(IntUnaryOperator)            int -> int
+	LongStream   mapToLong(IntToLongFuction)      int -> long
+	DoubleStream mapToDouble(IntToDoubleFunction) int -> double
+	Stream<T>    mapToObj(IntFunction)            int -> T
+	
+	 	            STREAMS                     PRIMITIVE STREAMS
+1. handles	    objects                     int
+                                            long
+																				    double
+
+2. generate     generate(Supplier)          Int/Long - generate()
+                iterate(T t, Function fn)   Int/Long/Double - iterate()
+								of()
+
+3. convers      mapToInt()    T -> int      mapToObj()  int/long/double -> T
+                mapToLong()   T -> long
+								mapToDouble() T -> double
+
+4. utils        count()                     sum()
+                                            average()
+																						count()
+																						min()
+																						max()
+																						summaryStatistics
+
+The limit(), skip(), forEachOrdered(), and findFirst() methods produce the same results, regardless of whether the stream is serial or parallel. There may be a performance cost with using them on a parallel stream, though, as the stream is forced into a single-threaded operation. 
+
+While the findAny() operation often returns the first result on a serial stream, it is permitted to return any result in the stream even on serial streams. 
+
+First, all of these lines compile. ArrayList, HashSet, and LinkedList are all allowed to contain null. However, a TreeSet is not, and line 28 throws a NullPointerException at runtime. 
+
+The findFirst() method guarantees the first element in the stream will be returned, whether it is serial or parallel.
+
+Java Stream APIs:
+Stream
+IntStream
+LongStream
+DoubleStream
+IntSummaryStatistics
+LongSummaryStatistics
+DoubleSummaryStatistics
+
+Generics:-
+class Test {
+	public static void main(String[] args) throws Exception {
+		Number one = 1;
+		Integer two = 2;
+		
+		// No type info when calling get(), so, compiler doesn't know much
+		// hence, below lines executes without type checking
+		System.out.println(get(two, one));
+		System.out.println(get(one, two));		
+		System.out.println(get("three", two));		
+		
+		// process type info while get called (it is static method)
+		System.out.println(Sample.<Number, Integer>get(one, two));		
+	}
+	
+	public static <T, R extends T> List<T> get(T type1, R type2) {
+		List<T> list = new ArrayList<>();
+		list.add(type1);
+		list.add(type2);
+		return list;
+	}
+}
+
+import java.util.*;
+
+public class Sample {
+	
+	public static void main(String[] args) throws Exception {
+		// Unbounded   --- <?>                immutable   means pass anything, it converts to Object type by compiler
+		// Upper bound --- <? extends Type>   immutable   means that Type and its parents
+		// Lower bound --- <? super Type>     mutable     means that Type and its kids
+		
+		List<IOException> ioExceptions = new ArrayList<>();
+		System.out.println(ioExceptions);
+		write(ioExceptions);
+		
+		List<Exception> exceptions = new ArrayList<>();
+		System.out.println(exceptions);
+		write(exceptions);
+		
+		List<Throwable> throwables = new ArrayList<>();
+		System.out.println(throwables);
+		write(throwables);
+		
+		List<Object> objects = new ArrayList<>();
+		System.out.println(objects);
+		
+		System.out.println("----------------------------");
+		
+		// Compiler not happy
+		// List<Object> num1 = new ArrayList<>();
+		// num1.add(new Integer(1));
+		// num1.add(new Long(2L));
+		// num1.add(new Integer(3));
+		// read(num1);
+		
+		// Compiler not happy
+		// List<Comparable> num1 = new ArrayList<>();
+		// num1.add(new Integer(1));
+		// num1.add(new Long(2L));
+		// num1.add(new Integer(3));
+		// read(num1);
+		
+		List<Number> num2 = new ArrayList<>();
+		num2.add(new Integer(1));
+		num2.add(new Long(2L));
+		num2.add(new Integer(3));
+		read(num2);
+
+		List<Integer> num3 = new ArrayList<>();
+		num3.add(new Integer(1));
+		num3.add(new Integer(2));
+		num3.add(new Integer(3));
+		read(num3);
+		
+		List<Long> num4 = new ArrayList<>();
+		num4.add(new Long(1));
+		num4.add(new Long(2));
+		num4.add(new Long(3));
+		read(num4);
+	}
+	
+	/*
+		 Object
+		   Serializable
+		  +- Number, Comparable
+		  |    Integer
+	    |    Long
+		  |    Double
+		  |    Byte
+			|    BigInteger
+		  |    AutomicInteger                   
+      v		
+  List<? extends Number> sets upper boundary here; 
+		  1) Supports immutability, so encourages read operation
+		  2) anything below or Number can be read from List inside read method
+		  3) anything below or Number can be passed as an agrument to read method
+		*/
+	public static void read(List<? extends Number> list) {
+		System.out.println(list);
+		Long sum = 0L;
+		for(Number n: list) {
+			sum += n.longValue();
+		}
+		System.out.println(sum);
+		System.out.println("----------------------------");
+	}
+	
+	/*
+		Object
+		  Throwable
+		     Exception
+	    +--- IOException
+		  |      FileNotFoundException                                     
+		  |
+      v		
+  List<? super IOException> sets lower boundary here; 
+		  1) Supports mutability, so encourages write opearation
+		  2) anything below or IOException can be added to List inside write method
+		  3) anything above or IOException can be passed as an agrument to write method
+		*/
+	public static void write(List<? super IOException> list) throws Exception {
+		Random r = new Random();
+		if(r.nextBoolean()) {
+			System.out.println("Add IOException");
+ 			list.add(new IOException());
+		}
+		if(r.nextBoolean()) {
+			System.out.println("Add FileNotFoundException");
+			list.add(new FileNotFoundException());
+		}
+		System.out.println(list);
+		System.out.println("----------------------------");
+	}
+	
+}
+
+import java.util.*;
+
+public class Sample {
+	
+	public static void main(String[] args) throws Exception {
+		List<?> list1 = new ArrayList<A>();           // A, B, C, Object, Integer, etc. anything allowed
+		List<? extends A> list2 = new ArrayList<A>(); // A, B, C allowed
+		List<? super A> list3 = new ArrayList<A>();   // A allowed; B, C not allowed
+		
+		// List<? extends B> list4 = new ArrayList<A>(); // not compile, but happy for ArrayList<B>, ArrayList<C>
+		List<? super B> list5 = new ArrayList<B>();   // compiles and ArrayList<A> or ArrayList<B>
+		// List<?> list6 = new ArrayList<? extends A>(); // not compile, not useful when unbounded type at the right side of declaration
+	}
+	
+}
+
+class A {}
+class B extends A {}
+class C extends B {}
+	
+	List<? super D>   |- List<D>, List<E>, List<F>, ..., List<Object>
+	                  |
+	    List<D>       |- List<D>
+	                  |
+	List<? extends D> |- List<D>, List<C>, List<B>, List<A>, ...
+	
+	/*
+              Object	
+	              ^
+		            |
+	              .
+	              .
+	              |
+	              G
+	              ^
+	              |
+	              |
+	              F
+	              ^
+	              |
+	              |    ^
+              	E    |          | List<? extends D> list = new ArrayList<A|B|C|D>();
+              	^    |          | D and its kids are welcome
+              	|    |          | sets upper boundary
+              	|    |          |
+       extends  D  super        |
+       (upper) 	| (lower)       |
+          ^    	|               |
+          |    	v	              | List<? super D> list = new ArrayList<D|E|F|G|Object>();
+          |    	C               | D and its parents are welcome
+					|			|		            | sets lower boundary
+		            |
+		            v
+		            B
+		            |
+		            |
+		            v
+		            A
+		            |
+		            |
+		            v
+		            .
+		            .
+		
+		*/ 
+
+import java.util.*;
+
+public class Sample {
+	
+	public static void main(String[] args) throws Exception {
+		List<String> strings = List.of("hi", "hello", "hi", "good", "bad", "hi");
+		// System.out.println(count(strings, "hi"));
+		
+		List<Integer> numbers = List.of(1, 3, 2, 4, 5, 2, 3, 9, 3, 3, 0);
+		// System.out.println(count(numbers, 3));
+		System.out.println(countGreaterThan(numbers, 2));
+	}
+	
+	public static <T extends Comparable<T>> int countGreaterThan(List<T> list, T limit) {
+		int count = 0;
+		for(T element: list) 
+			if (element.compareTo(limit) > 0)
+				count++;
+		return count;
+	}
+	
+	public static <T extends Number> int countGreaterThan0(List<T> list, T limit) {
+		int count = 0;
+		for(T element: list) 
+			if (element.intValue() > limit.intValue())
+				count++;
+		return count;
+	}
+	
+	public static <T> int count(List<T> list, T searchItem) {
+		int count = 0;
+		for(T element: list) 
+			if (element.equals(searchItem))
+				count++;
+		return count;
+	}
+		
+}
+
+ 1. Diamond operator is allowed only on the right side.
+ 2. Right side always be specified with generic type unless compiler can't infer types
+ 3. When using generic types in a method, the generic specification goes before the return type.
+ 4. Wildcard is not allowed to be on the right side of an assignment.
+ 5. Unbounded wildcard type method parameter can take bounded wildcard args
+    Ex: void collect(List<?> list) {}
+ 	     List<? super|extends Integer> list = new ArrayList<Integer>();
+ 			 collect(list);
+ 6. Can’t create a generic of primitive type
+ 7. Not allowed to create parameterized static fields within a generic class
+ 8. No static methods with parameterized types as parameters
+ 9. Can’t instantiate an object or an array of object of parameterized type
+10. Multi-bound constraint <T extends File & Comparable>
+11. constructor can be generic
+    ex: 
+		class MyClass<X> {
+		  <T> MyClass(T t) {
+		    // ...
+		  }
+		}
+		new MyClass<Integer>(1);
+12. Most confusing rules as follows
+		       
+					 List<Type> list = new ArrayList <Type> ();
+					 
+				     RULE ON LEFT OR RIGHT SIDES ALONE
+							             |
+1. <> NOT ALLOWED          | 1. <>  ALLOWED
+2. <?> ALLOWED             | 2. <?> NOT ALLOWED
+3. <? super E> ALLOWED     | 3. <? super E> NOT ALLOWED
+4. <? extends E> ALLOWED   | 4. <? extends E> NOT ALLOWED
+                           |
+                   RULE ON BOTH SIDES
+5. <Number>                | <Integer> NOT ALLOWED
+6. <Object>                | <Object>  ALLOWED
+7.NOT ALLOWED
+  a) o instanceof Calc<T>
+	b) overloading with type 
+	    ex: foo(List<Integer> list) {}
+			    foo(List<String> list) {}
+	c) on exception handling
+	    ex: try {} catch(MyExceptionType<T> e) {}
+  d) Performance
+	    ex: int[] vs Integer[] 
+
+Reifiable types in Java:
+Primitives: int, long, etc
+Non Parameterized Class or Interface: String, ActionListener
+All type arguments are unbounded wildcards: List<?>, Map<?, ?>
+RawTypes: List, Map
+Arrays of reifiable components: int[][], List<?>[]
+
+Non reifiable types in Java:
+Type variables: T
+Parameterized type with parameters: ArrayList<String>, Map<Integer, String>
+Parameterized type with bounds: List<? extends Number>, Consumer<? super String>
+
+erasure and reified generics           
+http://beust.com/weblog/2011/07/29/erasure-vs-reification/
+https://www.youtube.com/watch?v=LEAoMMEIUXk
+
+OOP Design Principles
+http://wiki.c2.com/?OoDesignPrinciples
+
+https://docs.oracle.com/javase/tutorial/extra/generics/intro.html
+https://docs.oracle.com/javase/tutorial/java/generics/index.html
+https://www.oracle.com/technical-resources/articles/java/juneau-generics.html
+
+# Misc notes:
+map.merge(key, newValue, mapFn)
+if key not found
+	add (key,newValue) to the map
+else
+	if key[value] is null
+			set the newValue at key, and dont call mapFn
+	else
+			call.mapFn(oldValue, newValue)
+
+Path path = Paths.get("bats/day/../night/birds/foods/./grains.txt");		
+System.out.println(path.getRoot()); // root, null if relative
+System.out.println(path.getParent()); // full path of the parent of dir/file, null if root or top of relative path
+System.out.println(path.getFileName()); // current dir or filename
+
+while((path = path.getParent()) != null)
+	System.out.println(path);
+
+/*
+Lets understand two common type of paths
+ABSOLUTE PATH: 
+ - starts with / OR C: Mac/Linux or Windows respectively 
+ - examples: /etc/config   c:\WINDOWS
+
+RELATIVE PATH:
+ - starts with directory or file, but no / or C:
+ - example: etc/config  etc/config/../systemd/network
+
+What is relativized path?
+  Forming of path relative to the current directory. This concludes two different type of possible path 
+can be relativized depending on the current working directory. The relativize() method requires that both 
+paths are absolute or both relative and throws an exception if the types are mixed.
+
+// Absolute + Absolute = works
+// Relative + Relative = works
+// Absolute + Relative = IllegalArgumentException
+// Relative + Absolute = IllegalArgumentException
+System.out.println(Path.of("User/srirammuthaiah/file.txt").relativize(Path.of("../file.txt")));
+
+----------------------------------------------------
+
+// absolute + relative = concat(a, r)
+Path path1 = Path.of("/etc/config");
+System.out.println(path1.resolve("user"));
+
+// relative1 + relative2 = concat(r1, r2)
+Path path2 = Path.of("bat/days");
+System.out.println(path2.resolve("user"));
+
+// absolute1 + absolute2 = absolute2
+System.out.println(path1.resolve("/home/sriram"));
+
+// relative1 + absolute1 = absolute1
+System.out.println(path2.resolve("/home/sriram"));
+
+                                                  RELATIVE                   ABSOLUTE
+                                                  ex: bat/days               ex: /etc/config 
+                                                  -------------------------+-----------------
+path.isAbsolute():boolean                         false                      true
+path.toAbsolutePath():Path                        /home/bat/days             /etc/config
+path.resolve("user"):Path                         bat/days/user              /etc/config/user
+path.resolve(Path.of("user")):Path                bat/days/user              /etc/config/user
+path.resolve("/home/sriram"):Path                 /home/sriram               /home/sriram
+                             
+
+*/
+
+import java.util.*;
+import java.nio.file.*;
+
+public class Sample {
+	
+	public static void main(String[] args) throws Exception {
+		// working with absolute paths
+		// System.out.println(Path.of("/tmp/learn/a/b/c/d/file.txt ")
+		// 	.relativize(Path.of("/tmp/learn/a/b/file.txt")));
+		
+		// System.out.println(Path.of("/tmp/learn/a/b/file.txt")
+		// 	.relativize(Path.of("/tmp/learn/a/b/c/d/file.txt")));
+		
+		// System.out.println(Path.of("/tmp/learn/a/b/file.txt")
+		// 	.relativize(Path.of("/etc/config.txt")));
+		
+		// System.out.println(Path.of("/etc/config.txt")
+		// 	.relativize(Path.of("/tmp/learn/a/b/file.txt")));
+		
+		// System.out.println(Path.of("../b/file.txt")
+		// 	.relativize(Path.of("../a/b/c/d/file.txt")));
+
+		// System.out.println(Path.of("../a/b")
+		// 	.relativize(Path.of("a/b")));//  Unable to compute relative path from ../a/b to a/b
+
+		//2.2
+		// System.out.println(Path.of("../a/b/c/d/file.txt")
+		// 	.relativize(Path.of("../b/file.txt")));
+		
+		// 2.3
+		// System.out.println(Path.of("../b/file.txt")
+		// 	.relativize(Path.of("../b/c/d/file.txt")));
+		
+		// System.out.println(Path.of("a/b")
+		// 	.resolve(Path.of("a/b")));
+		
+		// System.out.println(Path.of("../b/file.txt")
+		// 	.relativize(Path.of("../b/c/d/file.txt")));
+		
+    // Path path = Paths.get("/src/main/resources/test1");
+    // Path other = Paths.get("/src/main/resources/test1/test2");
+    // System.out.println(path.relativize(other));
+	
+	}
+	
+}
+
+/*
+tree /tmp/learn
+/tmp/learn
+└── a
+    └── b
+        ├── c
+        │   └── d
+        │       └── file.txt
+        └── file.txt
+
+4 directories, 2 files
+
+shell counts directory and file as path element
+
+How relativize works in Java?
+ 1. when both absolute path
+ 2. when both relative path
+ 3. otherwise throws IlleagalArgumentException
+
+Let's assume we're in a VI editor with the 
+following files opened
+
+1 when both absolute path
+1.1 you're at /tmp/learn/a/b/c/d/file.txt 
+but wanted to go to /tmp/learn/a/b/file.txt
+> pwd
+/tmp/learn/a/b/c/d/file.txt
+> vi ../../../file.txt --- ANSWER
+
+1.2 you're at /tmp/learn/a/b/file.txt
+but wanted to go to /tmp/a/b/c/d/file.txt
+> pwd
+/tmp/learn/a/b/file.txt
+> vi ../c/d/file.txt -- ANSWER
+
+1.3 entirely two differnt absolute paths
+you're at /tmp/learn/a/b/file.txt
+but wanted to go to /etc/config.txt
+> pwd
+/tmp/learn/a/b/file.txt
+> vi ../../../../../etc/config.txt -- ANSWER
+
+1.4 1.3 entirely two differnt absolute paths
+you're at /etc/config.txt
+but wanted to go to /tmp/learn/a/b/file.txt
+> pwd
+/etc/config.txt
+> vi ../../tmp/learn/a/b/file.txt -- ANSWER
+
+2. when both relative path
+2.1 you're at ../b/file.txt
+but wanted to go to ../a/b/c/d/file.txt
+> pwd
+../b/file.txt
+> vi ../../a/b/c/d/file.txt -- ANSWER
+
+2.2 you're at ../a/b/c/d/file.txt
+but wanted to go to ../b/file.txt
+> pwd
+../a/b/c/d/file.txt
+> vi ../../../file.txt -- ANSWER
+ACTUAL ../../../../../b/file.txt
+
+2.3 you're at ../b/file.txt
+but wanted to go to ../b/c/d/file.txt
+> pwd
+../b/file.txt
+> vi ../c/d/file.txt -- ANSWER
+*/
+
+/*
+How relativize works?
+r1 r1 = ""
+r1 r2 = r1 + r2
+a1 a2 = a2
+a1 r1 = IllegalArgumentException
+r1 a1 = IllegalArgumentException
+
+
+How resolve works?
+r1 r2 = r1 + r2
+a1 r1 = a1 + r1
+r1 a1 = a1
+a1 a2 = a2
+
+p1.resolve(p2)
+
+if (p1 is empty)	
+  return p2
+if (p2 is empty)
+	return p1
+else if (p2 is absolute)
+  return p2
+else 
+  return p1 + p2
+*/
+
+
+/*
+
+All Files methods throws IOException
+LinkOption
+FileAttribute
+CopyOption
+StandardCopyOption
+OpenOption
+StandardOpenOption
+FileVisitOption
+
+FileSystemLoopException
+NoSuchFileException
+DirectoryNotEmptyException
+
+Path createDirectory(Path path);
+Path createDirectories(Path path);
+copy(Path source, Path target, CopyOption... options);
+copy(Path source, OutputStream out);
+copy(InputStream in, Path target);
+move(Path source, Path target, CopyOption... options);
+void delete(Path path);
+boolean deleteIfExists(Path path);
+
+Scenarios to think about:
+Copy: 
+ Files, Directories, 
+ Replacing Files, Replacing Directories, 
+ Deep/Shallow Copy of Directories,
+ Copying Files into a Directory
+ Copying with I/O Stream
+
+Move:
+ Moving or Renaming a File or Directory
+ Moving Files into a Directory
+ Automic Move
+
+Delete:
+ Fails if Directory is not empty (DirectoryNotEmptyException)
+ Fails if File is not found (NoSuchFileException)
+
+*/
+
+
+public class Sample {
+	
+	public static void main(String... args) throws Exception {
+		BasicFileAttributeView view = 
+			Files.getFileAttributeView(Path.of("bats/sleep.txt"), BasicFileAttributeView.class);
+		BasicFileAttributes attributes = view.readAttributes();
+		System.out.println(attributes.isRegularFile());
+		System.out.println(attributes.isSymbolicLink());
+		System.out.println(attributes.isDirectory());
+		System.out.println(attributes.lastModifiedTime());
+		System.out.println(attributes.lastAccessTime());
+		System.out.println(attributes.creationTime());
+		System.out.println(attributes.size());
+		
+		FileTime lastModifiedTime = FileTime.fromMillis(attributes.lastModifiedTime().toMillis() + 10_000);
+		view.setTimes(lastModifiedTime, null, null);
+	}
+	
+}
+
+/*
+read                     read/update
+BasicFileAttribute       BasicFileAttributeView
+DosFileAttribtue         DosFileAttributeView
+PosixFileAttribute       PosixFileAttributeView
+
+view.setTime(modified, accessed, created)
+
+The result of passing null values to setTimes() is that the file times will not be modified.
+*/
+
+// deep copy directory
+import java.io.*;
+import java.nio.file.*;
+import java.nio.file.attribute.*;
+import static java.util.stream.Collectors.*;
+
+// Charset quick review on Chapter 8 IO
+
+public class Sample {
+	
+	public static void main(String... args) throws Exception {
+		Path path = Path.of("bats/kot"); 	
+		copyPath(Paths.get("bats/kotlin"), Path.of("bats/kot")); 
+	 }
+	
+	public static void copyPath(Path source, Path target) throws IOException {
+		Files.copy(source, target);
+		if (Files.isDirectory(source))
+			for(Path srcPath: Files.list(source).collect(toList()))
+				copyPath(srcPath, target.resolve(srcPath.getFileName()));
+	}
+	
+}
+
+import java.io.*;
+import java.nio.file.*;
+import java.nio.file.attribute.*;
+import static java.util.stream.Collectors.*;
+
+// Charset quick review on Chapter 8 IO
+
+public class Sample {
+	
+	public static void main(String... args) throws Exception {
+		var size = getPathSize(Paths.get("bats/kot"));
+		System.out.format("Total size: %.2f GB", (size / 1_000_000_000.0));
+
+		try (var s = Files.find(Paths.get("bats/kot"), Integer.MAX_VALUE, (p, a) -> a.size() > 1000)) {
+			s.forEach(System.out::println);
+		}
+		
+	}
+	
+	static long getPathSize(Path source) {
+		try (var s = Files.walk(source)) {
+			return s.parallel()
+				.filter(p -> !Files.isDirectory(p))
+				.mapToLong(p -> getSize(p))
+				.sum();
+		} catch(IOException e) {
+			// handle exception
+		}
+		return 0L;
+	}
+	
+	static long getSize(Path path) {
+		try {
+			long size = Files.size(path);
+			// System.out.println(path + ": " + size);
+			return size;
+		} catch(IOException e) {
+			// handle exception
+		}
+		return 0L;
+	}
+	
+}
+
+NIO.2 review topics:-
+1. StandardCopyOption.ATOMIC_MOVE
+2. Diffrent between FOLLOW_LINKS VS NOFOLLOW_LINK
+3. Method Path.toAbsolutePath() vs Path.toRealPath(LinkOption... options)
+4. Files, Path - occurrence of Checked exception scenarios (IOException), mostly occurred while performing filesystem mutable operations
+
+Cautionary points:-
+1. Caution Files.find() takes BiPredicate, Files.walk returns stream, filter takes Predicate
+2. Calling resolve() with an absolute path as a parameter returns the absolute path
+3. NOFOLLOW_LINKS means that if the source is a symbolic link, the link itself and not the target will be copied at runtime
+4. ATOMIC_MOVE means that any process monitoring the file system will not see an incomplete file during the move
+5. Files.isSameFile(path1, path2) returns true only if the files pointed to in the file system are the same, without regard to the file contents
+6. If depth parameter specified as the second argument to find() is 0, meaning the only record that will be searched is the top-level directory. Since we know that the top directory is a directory and not a symbolic link, no other paths will be visited
+7. Using a view to read multiple attributes leads to fewer round-trips between the process and the file system and better performance. Views can be used to access file system–specific attributes that are not available in Files methods; 
+8. Files.walk() does not follow symbolic links by default. Only if the FOLLOW_LINKS option is provided and if a cycle is encountered, exception will be thrown
+9. Path.of(".").normalize() method does not convert a relative path into an absolute path; therefore, the path value after the first line is just the current directory symbol. The getNameCount() yields 1
+10. toRealPath() - By default, resolves symbolic links, filename comparisons on a file system are case insensitive then the name elements represent the names in their actual case. Additionally, the resulting path has redundant name elements removed.
+11.The method Files.isSameFile() first checks to see whether the Path values are the same in terms of equals(). If the first path is relative and the second path is absolute, this comparison will return false, forcing isSameFile() to check for the existence of both paths in the file system and, if the file does not exist, a NoSuchFileException is thrown.
+12.This isSameFile() method does not compare the contents of the files. Two files may have identical names, content, and attributes, but if they are in different locations, then this method will return false.
+
+
+Concurrency points:-
+Types of threads in JVM
+system thread (GC, etc.,)
+user-defined thread
+
+Daemon Thread:
+a daemon thread is one that will not prevent the JVM from exiting when the program finishes. A Java application terminates when the only threads that are running are daemon threads. For example, if garbage collection is the only thread left running, the JVM will automatically shut down. Both system and user-defined threads can be marked as daemon threads.
+
+Concurrency:
+Multithreaded processing allows operating systems to execute threads at the same time. The property of executing multiple threads and processes at the same time is referred to as concurrency.
+
+Thread scheduler:
+Operating systems use a thread scheduler to determine which threads should be currently executing. For example, a thread scheduler may employ a round-robin schedule in which each available thread receives an equal number of CPU cycles with which to execute, with threads visited in a circular order. If there are 10 available threads, they might each get 100 milliseconds in which to execute, with the process returning to the first thread after the last thread has executed.
+
+Context-Switch:
+When a thread's allotted time is complete but the thread has not finished processing, a context switch occurs. A context switch is the process of storing a thread's current state and later restoring the state of the thread to continue execution.
+
+Thread priority:
+a thread can interrupt or supersede another thread if it has a higher thread priority than the other thread. A thread priority is a numeric value associated with a thread that is taken into consideration by the thread scheduler when determining which threads should currently be executing. In Java, thread priorities are specified as integer values.
+
+
+// weird error message
+class Test {
+	main() {
+				for(int i = 0;i < 5; i++)
+					Runnable r = () -> System.out.println("Hi");
+	}
+}
+Sample.java:13: error: variable declaration not allowed here
+			Runnable r = () -> System.out.println("Hi");
+			         ^
+1 error
+error: compilation failed
+
+but, correct way to solve this error as follows.
+class Test {
+	main() {
+				for(int i = 0;i < 5; i++) { // adding curly brace
+					Runnable r = () -> System.out.println("Hi");
+				}
+	}
+}
+
+// Submitting bulk tasks
+import java.util.*;
+import java.util.stream.*;
+import java.util.concurrent.*;
+
+public class Sample {
+		
+	public static void main(String[] args) throws InterruptedException {
+		// wait till all tasks completed
+		ExecutorService service = null;
+		try {
+			service = Executors.newSingleThreadExecutor();
+			
+			List<Runnable> tasks = Stream.iterate(0, i -> i + 1)
+				.limit(10)
+				.map(i -> (Runnable)() -> task((long) (Math.random() * 2000)))
+				.collect(Collectors.toList());
+			
+			for (Runnable task: tasks) {
+				service.submit(task);
+			}
+			
+		} finally {
+			if (service != null)
+				service.shutdown();
+		}
+		
+		if (service != null)
+			service.awaitTermination(1, TimeUnit.MINUTES);			
+		
+		if (service.isTerminated())
+			System.out.println("Finished!");
+		else
+			System.out.println("At least one task is still running");
+		
+		System.out.println("OK");
+	}
+	
+	public static void task(long number) {
+		try {
+			System.out.format("%s takes %d ms%n", Thread.currentThread().getName(), number);
+			Thread.sleep(number);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+		
+}
+
+
+// CyclicBarrier: Ensures all worker threads in a pool finishing its task, then jump on to next task.
+// useful workflow kinda problem
+import java.util.concurrent.*;
+
+public class Sample {
+	
+	public void removeLion() {System.out.println("Removing lion");}
+	public void cleanPen() {System.out.println("Cleaning pen");}
+	public void addLion() {System.out.println("Adding lion");}
+	
+	public void performTasks(CyclicBarrier c1, CyclicBarrier c2) {
+		try {
+			removeLion();
+			c1.await();
+			cleanPen();
+			c2.await();
+			addLion();
+		} catch (InterruptedException | BrokenBarrierException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void main(String[] args) throws Exception {
+		ExecutorService service = null;
+		try {
+			service = Executors.newFixedThreadPool(8); // 4 workers
+			
+			Sample manager = new Sample();
+			
+			CyclicBarrier c1 = new CyclicBarrier(4);
+			CyclicBarrier c2 = new CyclicBarrier(4, () -> System.out.println("*** Pens cleaned!"));
+			
+			for (int i = 0; i < 8; i++)  // 8 tasks
+				service.submit(() -> manager.performTasks(c1, c2)); 
+		} finally {
+			if (service != null)
+				service.shutdown();
+		}
+	}
+	
+}
+
+// Concurrent collection
+import java.util.*;
+import java.util.concurrent.*;
+import static java.util.stream.Collectors.*;
+
+public class Sample {
+	
+	public static void main(String[] args) throws Exception {
+		ConcurrentMap<Integer, String> map = new ConcurrentHashMap<>();
+		map.put(3, "three");
+		map.put(1, "one");
+		map.put(2, "two");
+		System.out.println(map);
+
+		Queue<Integer> queue = new ConcurrentLinkedQueue<>();
+		queue.offer(4);
+		queue.offer(8);
+		queue.offer(2);
+		System.out.println(queue);
+		System.out.println(queue.peek());
+		System.out.println(queue.poll());
+		System.out.println(queue);
+
+		Set<String> animalSet = new ConcurrentSkipListSet<>();
+		animalSet.add("dog");
+		animalSet.add("wolf");
+		animalSet.add("cat");
+		System.out.println(animalSet.stream().collect(joining(",")));
+
+		Map<String, String> animalMap = new ConcurrentSkipListMap<>();
+		animalMap.put("dog", "cookie");
+		animalMap.put("cat", "milk");
+		animalMap.put("lion", "deer");
+		System.out.println(animalMap);
+
+		List<Integer> numbers = new CopyOnWriteArrayList<>(List.of(3, 2, 9, 7));
+		System.out.println("before: " + numbers);
+		System.out.println("size: " + numbers.size());
+
+		for(Integer number: numbers)
+			if (number % 2 == 0)
+				numbers.add(number * 2);
+
+		System.out.println("after: " + numbers);
+		System.out.println("size: " + numbers.size());
+		
+	  Set<Integer> numbers = new CopyOnWriteArraySet<>(List.of(34, 2, 28, 3));
+		System.out.format("before: list=%s; size=%d%n", numbers, numbers.size());
+		
+		for(Integer number: numbers)
+			if (number % 2 != 0)
+				numbers.add(number * 2);
+
+		System.out.format("after: list=%s; size=%d%n", numbers, numbers.size());		
+	}
+	
+}
+
+//Deadlock
+import java.util.concurrent.*;
+
+public class Sample {
+	
+	public static void main(String[] args) throws Exception {
+		
+		Water water = new Water();
+		Food food = new Food();
+		Fox foxy = new Fox();
+		Fox tails = new Fox();
+		
+		ExecutorService service = null;
+		try {
+			service = Executors.newFixedThreadPool(10);
+			service.submit(() -> foxy.drinkAndEat(food, water));
+			service.submit(() -> tails.eatAndDrink(food, water));
+		} finally {
+			if (service != null)
+				service.shutdown();
+		}
+	}
+	
+}
+
+class Water {}
+class Food {}
+class Fox {
+	public void drinkAndEat(Food food, Water water) {
+		synchronized(water) {
+			System.out.println("Got water");
+			move();
+			synchronized(food) {
+				System.out.println("Got food");
+			}
+		}
+	}
+	
+	public void eatAndDrink(Food food, Water water) {
+		synchronized(food) {
+			System.out.println("Got food");
+			move();
+			synchronized(water) {
+				System.out.println("Got water");
+			}
+		}
+	}
+	
+	public void move() {
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+}
+
+// BlockingQueue simulation
+import java.util.*;
+import java.util.stream.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
+import java.lang.reflect.*;
+import static java.util.stream.Collectors.*;
+
+public class Sample {
+	
+	public static void main(String[] args) throws Exception {
+		Sample app = new Sample();
+		
+		BlockingQueue<Integer> q = new LinkedBlockingQueue<>();
+		
+		new Thread(() -> sleep(q)).start();
+		new Thread(() -> app.addAndPrintItems(q)).start();
+		
+		// app.addAndPrintItems(q);
+		System.out.println("END main");
+	}
+	
+	public static void sleep(BlockingQueue<Integer> q) {
+		System.out.println("Entering sleep");
+		try {
+			Thread.sleep(10_000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		q.offer(80);
+		System.out.println("sleep result: " + q);
+		System.out.println("Exiting sleep");
+	}
+
+	public void addAndPrintItems(BlockingQueue<Integer> queue) {
+		try {
+			 System.out.println("entering addAndPrintItems");
+	     queue.offer(103);
+			 System.out.println("added 103");
+	     queue.offer(20, 1, TimeUnit.SECONDS);
+			 System.out.println("added 20");
+	     queue.offer(85, 7, TimeUnit.HOURS);
+			 System.out.println("added 85");
+	     System.out.println(queue.poll(200, TimeUnit.NANOSECONDS));
+			 System.out.println("removed 103");
+	     System.out.println(" " + queue.poll(1, TimeUnit.MINUTES));
+			 System.out.println("removed 20");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println("Exiting addAndPrintItems");
+	}	
+}
+
+ ExecutorService							             					ScheduledExecutorService
+ newSingleThreadExecutor														 newSingleThreadScheduledExecutor
+ Future<?> submit(runnable)													ScheduledFuture<?> schedule(runnable, delayInLong, TimeUnit)
+ Future<T> submit(callable<T>)											schedule(callable, delayInLong, TimeUnit)
+ List<Future<T>> invokeAll(collection<callable<T>>)	ScheduledFuture<?> scheduleAtFixedRate(runnable, delayInLong, periodInLong, TimeUnit)
+ T invokeAny(collection<callable<T>>)								ScheduledFuture<?> scheduleAtFixedDelay(runnable, delayInLong, periodInLong, TimeUnit)
+ Future																							ScheduledFuture
+
+javap java.util.concurrent.ExecutorService
+Compiled from "ExecutorService.java"
+public interface java.util.concurrent.ExecutorService extends java.util.concurrent.Executor {
+  public abstract void shutdown();
+  public abstract java.util.List<java.lang.Runnable> shutdownNow();
+  public abstract boolean isShutdown();
+  public abstract boolean isTerminated();
+  public abstract boolean awaitTermination(long, java.util.concurrent.TimeUnit) throws java.lang.InterruptedException;
+  public abstract <T> java.util.concurrent.Future<T> submit(java.util.concurrent.Callable<T>);
+  public abstract <T> java.util.concurrent.Future<T> submit(java.lang.Runnable, T);
+  public abstract java.util.concurrent.Future<?> submit(java.lang.Runnable);
+  public abstract <T> java.util.List<java.util.concurrent.Future<T>> invokeAll(java.util.Collection<? extends java.util.concurrent.Callable<T>>) throws java.lang.InterruptedException;
+  public abstract <T> java.util.List<java.util.concurrent.Future<T>> invokeAll(java.util.Collection<? extends java.util.concurrent.Callable<T>>, long, java.util.concurrent.TimeUnit) throws java.lang.InterruptedException;
+  public abstract <T> T invokeAny(java.util.Collection<? extends java.util.concurrent.Callable<T>>) throws java.lang.InterruptedException, java.util.concurrent.ExecutionException;
+  public abstract <T> T invokeAny(java.util.Collection<? extends java.util.concurrent.Callable<T>>, long, java.util.concurrent.TimeUnit) throws java.lang.InterruptedException, java.util.concurrent.ExecutionException, java.util.concurrent.TimeoutException;
+}
+	
+Compiled from "ScheduledExecutorService.java"
+public interface java.util.concurrent.ScheduledExecutorService extends java.util.concurrent.ExecutorService {
+  public abstract java.util.concurrent.ScheduledFuture<?> schedule(java.lang.Runnable, long, java.util.concurrent.TimeUnit);
+  public abstract <V> java.util.concurrent.ScheduledFuture<V> schedule(java.util.concurrent.Callable<V>, long, java.util.concurrent.TimeUnit);
+  public abstract java.util.concurrent.ScheduledFuture<?> scheduleAtFixedRate(java.lang.Runnable, long, long, java.util.concurrent.TimeUnit);
+  public abstract java.util.concurrent.ScheduledFuture<?> scheduleWithFixedDelay(java.lang.Runnable, long, long, java.util.concurrent.TimeUnit);
+}
+
+Compiled from "Delayed.java"
+public interface java.util.concurrent.Delayed extends java.lang.Comparable<java.util.concurrent.Delayed> {
+  public abstract long getDelay(java.util.concurrent.TimeUnit);
+}
+
+Compiled from "ScheduledFuture.java"
+public interface java.util.concurrent.ScheduledFuture<V> extends java.util.concurrent.Delayed, java.util.concurrent.Future<V> {
+}
+
+Compiled from "Future.java"
+public interface java.util.concurrent.Future<V> {
+  public abstract boolean cancel(boolean);
+  public abstract boolean isCancelled();
+  public abstract boolean isDone();
+  public abstract V get() throws java.lang.InterruptedException, java.util.concurrent.ExecutionException;
+  public abstract V get(long, java.util.concurrent.TimeUnit) throws java.lang.InterruptedException, java.util.concurrent.ExecutionException, java.util.concurrent.TimeoutException;
+}
+
+// Concurrent collection
+   SortedSet  NavigableSet    SortedMap  NavigableMap  ConcurrentMap
+		  ^           ^           	  ^           ^          ^     ^
+			|           |           		|           |          |     |
+			+-----------+           		+-----------+----------+     | 
+						^                 					      ^         	     |         
+						|			            					      |	      	       |         
+    ConcurrentSkipListSet         ConcurrentSkipListMap ConcurrentHashMap
+	 
+
+
+		      List                   Set                   Queue							BlockingQueue
+           ^                     ^            				  ^                     ^
+           |                     |            					|                     |
+  CopyOnWriteArrayList   CopyOnWriteArraySet   ConcurrentLinkedQueue   LinkedBlockingQueue
+
+
+CopyOnWrite: Creates a new collection by copying all elements with modification
+                      affects
+	modify collection      Y
+	modify object          N
+
+
+Parallel vs Non-parallel working model
+
+ T1   T2   T3   T4   T5
+ |    |    |    |    | 
+ |    |    |    |    |   (parallel tasks)
+ |    |    |    |    | 
+ v    v    v    v    v 
+ +----+----+----+----+
+	         |
+					 |             (non-parallel tasks) 
+					 v
+ +----+----+----+----+
+ |    |    |    |    | 
+ |    |    |    |    |   (parallel tasks)
+ |    |    |    |    | 
+ v    v    v    v    v 
+
+by default streams are serial and ordered
+making parallel just parallel
+making unordered just unordered
+unordered and parallel makes more the streams real performant
+
+                SERIAL    PARALLEL
+limit(n)         Y           N
+skip(n)          Y           N
+findFirst()      Y           N
+findAny()        Y           Y
+unordered()      N           Y
+sorted()         Y           N
+
+Deadlock: Deadlock occurs when two or more threads are blocked forever, each waiting on the other.
+
+Starvation: Starvation occurs when a single thread is perpetually denied access to a shared resource or lock. The thread is still active, but it is unable to complete its work as a result of other threads constantly taking the resource that they are trying to access.
+
+Livelock: Livelock occurs when two or more threads are conceptually blocked forever, although they are each still active and trying to complete their task. Livelock is a special case of resource starvation in which two or more threads actively try to acquire a set of locks, are unable to do so, and restart part of the process.
+In practice, livelock is often a difficult issue to detect. Threads in a livelock state appear active and able to respond to requests, even when they are in fact stuck in an endless cycle.
+
+Race condition: A race condition is an undesirable result that occurs when two tasks, which should be completed sequentially, are completed at the same time.
+
+ConcurrentSkipListSet or ConcurrentSkipListMap
+	- Eq. to TreeSet/TreeMap
+	- maintains element in natural order
+	- allows concurrent modifition in foreach loop
+
+Exceptions:
+
+Unchecked Exceptions           Checked exceptions
+....................           ...................
+ArithmeticException            ParseException
+ArrayStoreException            SQLException
+NullPointerException
+MissingResourceException
+UnsupportedOperatoinException
+ArrayIndexOutOfBoundsException
+ClassCastException
+IllegaStateException
+
+IllegalArgumentException                     IOException
+          ^                                      ^
+					|                                      |               
+					|                      +---------------+----------------+
+					|                      |                                |
+NumberFormatException		FileNotFoundExceptoin        NotSerializableException
+
+Automatic Resource Management (ARM)
+try-with-resource
+
+javap java.io.Closeable
+Compiled from "Closeable.java"
+public interface java.io.Closeable extends java.lang.AutoCloseable {
+  public abstract void close() throws java.io.IOException;
+}
+
+javap java.lang.AutoCloseable
+Compiled from "AutoCloseable.java"
+public interface java.lang.AutoCloseable {
+  public abstract void close() throws java.lang.Exception;
+}
+
+Rule 1:
+In a try‐with‐resources statement, you need to remember that the resource will be closed at the completion of the try block, before any declared catch or finally blocks execute.
+
+Rule 2:
+a try‐with‐resources statement can include multiple resources, which are closed in the reverse order in which they are declared. Resources are terminated by a semicolon (;), with the last one being optional.
+
+Rule 3:
+effectively final resouce variable can be referenced inside try-with-resource block. below sample code illustrate this behaviour
+
+        11: public void relax() {
+        12:    final var bookReader = new MyFileReader("4");
+        13:    MyFileReader movieReader = new MyFileReader("5");
+        14:    try (bookReader;
+        15:         var tvReader = new MyFileReader("6");
+        16:         movieReader) {
+        17:       System.out.println("Try Block");
+        18:    } finally {
+        19:       System.out.println("Finally Block");
+        20:    }
+        21: }
+
+Rule 4:
+If any exception throwns inside try or inside close() methods, still try-with-resouce call all close() methods of the resources and pass those in suppressed exception list if the code has catch block, otherwise pass it JVM to throw all suppressed exception
+
+Tricky qt:1
+		var reader = Files.newBufferedReader(Path.of("./Sample.java"));
+		System.out.println(reader.readLine());
+		try (reader) {
+			System.out.println(reader.readLine());			
+		} 
+		System.out.println(reader.readLine()); // Stream closed exception at runtime
+
+Tricky qt:2
+    public class Sample {
+    	
+    	public static void main(String[] args) throws Exception {
+    		try (var cage = new TurkeyCage()) {
+    			throw new RuntimeException("Turkey ran off");
+    			// throw new IllegalStateException("Turkey ran off");
+    		} catch (IllegalStateException e) {
+    			System.out.println(e.getMessage());
+    			for(Throwable se: e.getSuppressed())
+    				System.out.println(se.getMessage());
+    		}
+    	}
+    	
+    }
+    
+    class TurkeyCage implements AutoCloseable {
+    	public void close() {
+    		throw new IllegalStateException("Cage door dosn't close");
+    	}
+    }
+    
+
+If more than two resources throw an exception, the first one to be thrown becomes the primary exception, with the rest being grouped as suppressed exceptions. And since resources are closed in reverse order in which they are declared, the primary exception would be on the last declared resource that throws an exception.
+
+
+Tricky qt:3
+Keep in mind that suppressed exceptions apply only to exceptions thrown in the try clause. The following example does not throw a suppressed exception: 5:     
+
+    class JammedTurkeyCage implements AutoCloseable {
+    	public void close() {
+    		throw new IllegalStateException("Cage door jammed");
+    	}
+    }
+
+ 5: public static void main(String[] args) {
+ 6:     try (JammedTurkeyCage t = new JammedTurkeyCage()) {
+ 7:        throw new IllegalStateException("Turkeys ran off");
+ 8:     } finally {
+ 9:        throw new RuntimeException("and we couldn't find them");
+ 10:    }
+ 11: }
+
+Tricky qt:4
+Finally block throws new exception, all exception caught so far are lost.
+including suppressed exception.
+
+       public class Sample {
+       	
+       	public static void main(String[] args) throws Exception {
+       		try (var cage = new TurkeyCage()) {
+       			throw new RuntimeException("Turkey run off");
+       		} catch (IllegalStateException e) {
+       			System.out.println(e.getMessage());
+       			for(Throwable se: e.getSuppressed())
+       				System.out.println(se.getMessage());
+       		} finally {
+       			throw new RuntimeException("We couldn't find them");
+       		}
+       	}
+       	
+       }
+       
+       class TurkeyCage implements AutoCloseable {
+       	public void close() {
+       		throw new IllegalStateException("Cage door dosn't close");
+       	}
+       }
+
+
+Assertions:-
+-ea or -enableassertions
+-da or -disableassertions
+
+-ea:com.pkg... (package and its subpackage level)
+-da:com.pkg... 
+
+assert condition
+assert condition: message
+
+Any mismatch or syntax of the statement leads to compile time error
+AssertionError thrown at runtime if condition evaluates to false
+
+Date Time API:-
+import java.util.*;
+import java.time.*;
+import java.time.format.*;
+
+public class Sample {
+	
+	public static void main(String[] args) throws Exception {
+		LocalDate date = LocalDate.of(2020, Month.OCTOBER, 23);
+		System.out.println(date);
+		
+		LocalTime time = LocalTime.of(6, 30, 48, 349);
+		System.out.println(time);
+		System.out.println(LocalDateTime.of(date, time));
+		
+		ZonedDateTime currentTime = ZonedDateTime.now();
+		System.out.println(currentTime);
+		
+		var dt = DateTimeFormatter.ofPattern("yyyy, MMMM, dd - h:m");
+		var dateTime = LocalDateTime.of(date, time);
+		System.out.println(dt.format(dateTime));
+		
+		System.out.println(DateTimeFormatter.ofPattern("MMM dd 'Party''s' hh:mm a").format(dateTime));
+		
+		var sdf = new java.text.SimpleDateFormat("yyyy, MMM, dd");
+		var utilDate = new Date();
+		System.out.println(sdf.format(utilDate));
+		
+		System.out.println(DateTimeFormatter.ofPattern("hh:mm Zz").format(ZonedDateTime.now()));
+	}
+	
+}
+
+LocalDate
+LocalTime
+LocalDateTime
+ZonedDateTime
+
+y - year   h - hour    z - time zone name   (Easter Standard Time, EST)
+M - month  m - minute  Z - time zone offset (-0400)
+d - day    s - second
+           a - am/pm
+
+single quote for adding custom text in format string
+e.g: DateTimeFormatter.ofPattern("yyyy, MMMMM dd 'at' hh:mm");
+
+how to escape '? ans: ''
+e.g: DateTimeFormatter.ofPattern("MMM dd 'Party''s' hh:mm a")
+Oct 23 Party's 06:30 pm
+
+
+Internationalization & Localization
+
+Internationalization means placing strings in a properties file and ensuring the proper data formatters are used. 
+
+Localization means actually supporting multiple locales or geographic regions. You can think of a locale as being like a language and country pairing. Localization includes translating strings to different languages. It also includes outputting dates and numbers in the correct format for that locale.
+
+
+import java.util.*;
+import java.text.*;
+import java.time.*;
+import java.time.format.*;
+import static java.time.format.FormatStyle.*;
+
+public class Sample {
+	
+	public static void main(String[] args) throws Exception {
+		Locale locale = Locale.getDefault();
+		System.out.println(locale);
+
+		System.out.println(Locale.GERMAN);
+		System.out.println(Locale.GERMANY);
+
+		System.out.println(new Locale("ta", "IN"));
+		System.out.println(new Locale.Builder()
+			.setRegion("US")
+			.setLanguage("en")
+			.build());
+
+		System.out.println("----");
+		System.out.println(Locale.getDefault());
+		Locale french = new Locale("fr");
+		Locale.setDefault(french);
+		System.out.println(Locale.getDefault());
+
+		System.out.println("----");
+		System.out.println("Decimal data formatting");
+		int attendeesPerYear = 3_200_000;
+		int attendeesPerMonth = attendeesPerYear / 12;
+
+		var us = NumberFormat.getInstance(Locale.US);
+		System.out.println(us.format(attendeesPerMonth));
+
+		var gr = NumberFormat.getInstance(Locale.GERMANY);
+		System.out.println(gr.format(attendeesPerMonth));
+
+		var ca = NumberFormat.getInstance(Locale.CANADA_FRENCH);
+		System.out.println(ca.format(attendeesPerMonth));
+
+		var fr = NumberFormat.getInstance();
+		System.out.println(fr.format(attendeesPerMonth));
+
+		System.out.println("----");
+		System.out.println("Currency formatting");
+		double price = 33.24;
+		System.out.println(NumberFormat.getCurrencyInstance(Locale.US).format(price));
+		System.out.println(NumberFormat.getCurrencyInstance(Locale.GERMANY).format(price));
+		System.out.println(NumberFormat.getCurrencyInstance(Locale.CANADA_FRENCH).format(price));
+		System.out.println(NumberFormat.getCurrencyInstance().format(price));
+
+		System.out.println("----");
+		String pencilPrice = "$1.2";
+		Double actualPencilPrice = (Double) NumberFormat.getCurrencyInstance(Locale.US).parse(pencilPrice);
+		System.out.println(actualPencilPrice);
+
+		String miles = "123.323"; //123,323 miles
+		System.out.println(NumberFormat.getInstance().parse(miles)); // french 123
+		System.out.println(NumberFormat.getInstance(Locale.US).parse(miles)); // US 123.323
+
+		// Custom decimal format, DecimalFormat extends NumberFormat
+		System.out.println("----");
+		Locale.setDefault(Locale.US);
+		double number = 1234357.32;
+		NumberFormat format1 = new DecimalFormat("###,###.##");
+		NumberFormat format2 = new DecimalFormat("$###,###.0");
+		NumberFormat format3 = new DecimalFormat("$##,##.000");
+		NumberFormat format4 = new DecimalFormat("$000,000,000.000");
+		System.out.println(format1.format(number));
+		System.out.println(format2.format(number));
+		System.out.println(format3.format(number));
+		System.out.println(format4.format(number));
+		
+		System.out.println("----");
+		var formatter1 = DateTimeFormatter.ofLocalizedDate(LONG);
+		var formatter2 = DateTimeFormatter.ofLocalizedTime(SHORT);
+		var formatter3 = DateTimeFormatter.ofLocalizedTime(MEDIUM);
+		var formatter4 = DateTimeFormatter.ofLocalizedDateTime(FULL);
+		var date = LocalDate.of(2020, Month.DECEMBER, 25);
+		var time = LocalTime.of(15, 24);
+		var dateTime = LocalDateTime.of(date, time);
+		System.out.println(formatter1.format(dateTime));
+		System.out.println(formatter1
+			.withLocale(new Locale("en", "IN"))
+			.format(dateTime));
+		
+		System.out.println(formatter2
+			.withLocale(new Locale("en", "IN"))
+			.format(dateTime));
+		
+		System.out.println(formatter3
+			.withLocale(new Locale("en", "GB"))
+			.format(ZonedDateTime.now()));
+		
+		System.out.println(formatter4
+			.withLocale(new Locale("en", "GB"))
+			.format(ZonedDateTime.now()));
+	}
+	
+}
+
+
+localizing number
+dollar in US - $2.15
+euro in Germany 2,15 €.
+
+NumberFormat.getInstance([locale])
+NumberFormat.getNumberInstance([locale])
+NumberFormat.getCurrencyInstance([locale])
+NumberFormat.getPercentInstance([locale])
+NumberFormat.getIntegerInstance([locale])
+
+format()
+parse()
+
+DecimalFormat
+# - omit if no digit exists
+0 - place 0 if no digit exists
+
+DateTimeFormatter.ofPattern("pattern")
+DateTimeFormatter.ofLocalizedDate(dateStyle)
+DateTimeFormatter.ofLocalizedTime(timeStyle)
+DateTimeFormatter.ofLocalizedDateTime(dateTimeStyle)
+
+FormatStyle - SHORT, MDEIDUM, LONG, FULL
+
+import java.util.*;
+import java.text.*;
+
+public class Sample {
+	
+	public static void main(String[] args) throws Exception {
+		double price = 32.23;
+		// en_GB
+		System.out.println(Locale.getDefault() + " ; " 
+			+ Locale.getDefault().getDisplayName() + " ; " 
+			+ NumberFormat.getCurrencyInstance().format(price));
+
+		// comment SC 1 & SC 2 separately to see the output difference
+		
+		// scenario 1 - just change display to Spain Locale, but still format refers to Great Britian
+		{
+			Locale spain = new Locale("es", "ES");
+			Locale.setDefault(Locale.Category.DISPLAY, spain);
+			// Locale.setDefault(spain);
+			System.out.println(Locale.getDefault() + " ; "
+				+ Locale.getDefault().getDisplayName() + " ; "
+				+ NumberFormat.getCurrencyInstance().format(price));
+		}
+
+
+		// scenario 2 - just change format to Spain Locale, but still display refers to Great Britian
+		{
+			Locale spain = new Locale("es", "ES");
+			Locale.setDefault(Locale.Category.FORMAT, spain);
+			// Locale.setDefault(spain);
+			System.out.println(Locale.getDefault() + " ; " 
+				+ Locale.getDefault().getDisplayName() + " ; " 
+				+ NumberFormat.getCurrencyInstance().format(price));		
+		}
+	}
+	
+}
+
+/*
+
+Locale.Category
+ DISPLAY
+ FORMAT
+
+when you call Locale.setDefault() with a locale, both the DISPLAY and FORMAT are set together.
+current locale is Great Britian (English) and want to change to Spain locale
+e.g Local.setDefault(new Local("es", "ES")); // it sets display and format of that Locale
+
+Locale dispUS = new Locale(Category.DISPLAY, "en", "US");
+Locale frmtUS = new Locale(Category.FORMAT, "en", "US");
+*/
+
+import java.util.*;
+
+public class Sample {
+	
+	public static void main(String[] args) throws Exception {
+		Locale us = new Locale("en", "US");
+		Locale fr = new Locale("fr", "FR");
+		printMessage(us);
+		System.out.println("----");
+		printMessage(fr);
+	}
+	
+	static void printMessage(Locale locale) {
+		ResourceBundle rb = ResourceBundle.getBundle("zoo", locale);
+		rb.keySet()
+			.forEach(e -> System.out.println(e + " : " + rb.getString(e)));
+	}
+	
+}
+
+/*
+Resource Bundle loading order
+if default Locale is en_US, but requested fr_CA bundle, then below is the order in which properties files loaded and accessed by JVM
+ 1. Zoo_fr_CA.properties
+ 2. Zoo_fr.properties
+ 3. Zoo_en_US.properties
+ 4. Zoo_en.properties
+ 5. Zoo.properties
+ 6. MissingResouceException
+
+Property value loading order
+if default Locale is en_US, but requested en_CA bundle
+ Zoo_en_CA -> Zoo_en -> Zoo
+if default Locale is en_US, but requested fr_CA bundle
+ Zoo_fr_CA -> Zoo_fr -> Zoo_en -> Zoo
+*/
+
+String string = "Hello, Mr. {1}, {0}";
+System.out.println(java.time.MessageFormat.format(string, "Joe", "Peter"));
+
+import java.util.*;
+
+public class Sample {
+	
+	public static void main(String[] args) throws Exception {
+		var prop = new Properties();
+		prop.setProperty("first", "Sriram");
+		prop.setProperty("last", "Muthaiah");
+		prop.put("salary", 3000);
+		
+		System.out.println(prop.getProperty("first"));
+		System.out.println(prop.getProperty("age"));
+		System.out.println(prop.getProperty("age", "10"));
+
+		System.out.println(prop.get("last"));
+		
+		System.out.println(prop.get("salary")); //3000
+		System.out.println(prop.getProperty("salary")); //null
+	}
+	
+}
+
+/*
+Properties
+ - setProperty("key", "value")
+ - getProperty("key")
+ - getProeprty("key", defaultValue) // if key not found, returns defaultValue
+ - put("putKey", anyObject)
+ - get("putKey")
+ - getProperty("putKey") // returns null
+*/
+
+@FunctionalInterface
+public interface Sample {
+   // public static void roll() { roll(); }
+   // private int takeBreak() { roll(); return 1; }
+   // void startGame();
+   // default void win();
+   // static void end() {}
+   // boolean equals(Object o);
+   //
+	 private void privateMethod() {privateStaticMethod();}
+	 
+	 private static void privateStaticMethod() {}
+	 public static void publicStaticMethod() {}
+	 static void noModifierStaticMethod() {}
+
+	 default void noModifierDefaultMethod() {}	 
+	 public default void publicDefaultMethod() {}
+	 	 
+	 void abstractMethod();
+	 
+	 boolean equals(Object o);
+}
+
+/*
+Line 1 compiles, as this is a functional interface and contains exactly one abstract method: 
+startGame(). Note that equals(Object) on line 8 does not contribute to the abstract method count, 
+as it is always provided by java.lang.Object. Line 3 compiles, although if executed, it would 
+generate an infinite recursive call at runtime. Line 4 compiles since private interface methods 
+can call static interface methods. Line 6 does not compile because the default interface methods 
+must include a body. Line 7 also does not compile, as static interface methods are not permitted 
+to call default, abstract, or non-static private interface methods. For these reasons, options E 
+and F are correct. For more information, see Chapter 1.
+*/
+
+import java.util.*;
+import java.util.stream.*;
+import java.util.concurrent.*;
+
+public class Sample {
+	
+	public static void main(String[] args) throws Exception {
+		// Problem
+		{
+			List<Integer> list = new ArrayList<>();
+			IntStream.range(0, 100).parallel().forEach(e -> list.add(e));
+			System.out.println(list.size());
+		}
+				
+		// 1. synchronizedList
+		{
+			List<Integer> list = Collections.synchronizedList(new ArrayList<>());
+			IntStream.range(0, 100).parallel().forEach(e -> list.add(e));
+			System.out.println(list.size());
+		}
+		
+		// 2. CopyOnWriteArrayList
+		{
+			List<Integer> list = new CopyOnWriteArrayList<>(new ArrayList<>());
+			IntStream.range(0, 100).parallel().forEach(e -> list.add(e));
+			System.out.println(list.size());
+		}
+		
+		// 3. remove parallel
+		{
+			List<Integer> list = new ArrayList<>();
+			IntStream.range(0, 100).forEach(e -> list.add(e));
+			System.out.println(list.size());
+		}
+
+		// 4. forEachOrdered
+		{
+			List<Integer> list = new ArrayList<>();
+			IntStream.range(0, 100).parallel().forEachOrdered(e -> list.add(e));
+			System.out.println(list.size());
+		}		
+	}
+	
+}
+
+Out of syllabus:
+import java.lang.annotation.*;
+
+enum Mode {
+	AUTONOMOUS,DEPENDENT;
+	
+	public static void main(String[] args) {
+		System.out.println("OK");
+	}
+}
+
+@interface CleaningProgram {
+   Mode mode();
+}
+
+@Documented @interface Robot {
+   CleaningProgram cp()
+      default @CleaningProgram(mode=Mode.AUTONOMOUS);
+   final int MAX_CYCLES = 10;
+   String name() default "10";
+}
+
+
+http://app.efficientlearning.com/pv5/v8/5/app/
+
+https://github.com/sineadmcl13/ocpjp-11-upgrade-exam-prep
+https://github.com/josousa82/OCP-Study
+https://github.com/rysharprules/Java-SE11-Upgrade-Exam
+http://java.boot.by/ocpjd11-upgrade-guide/index.html
+https://www.whizlabs.com/blog/ocp-java-11-upgrade-1z0-817-exam-preparation/
+
+
+https://github.com/XQQ8765/ebook/tree/master/Sams%20Teach%20Yourself%20TCP_IP%20-%20Fifth%20Edition/Hour%2011.%20TCP_IP%20Security
+
+https://github.com/XQQ8765/ebook/tree/master/Java%20Concurrency%20in%20Practice
+
+https://github.com/sanigo/books
+
+pdf to ebook format converter
+https://convertio.co/
+
+https://www.udemy.com/course/java-se-programmer-ii-1z0-816-practice-test/
+
+https://www.udemy.com/course/java-se-11-developer-1z0-819-ocp-course-part-2/
+
+https://www.udemy.com/course/java-se-11-developer-1z0-819-ocp-course-part-1/
+
+https://javarevisited.blogspot.com/2019/07/top-4-java-11-certification-free-mock-exams-practice-tests-ocajp11-ocpjp11-1z0-815-16-questions.html#axzz6caKquqji
+
+

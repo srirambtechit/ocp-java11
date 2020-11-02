@@ -1,0 +1,22 @@
+#!/bin/zsh
+
+[ -d mods ] && { rm -rf mods; mkdir mods } 
+[ -d apple/classes ] && rm -rf apple/classes
+[ -d banana/classes ] && rm -rf banana/classes
+
+javac -d banana/classes banana/src/**/*.java || exit
+jar -cf mods/banana.jar -C banana/classes .
+
+javac -cp mods/banana.jar -d apple/classes apple/src/**/*.java || exit
+# javac -p mods -d apple/classes apple/src/**/*.java || exit
+jar -cf mods/apple.jar -C apple/classes .
+
+java -cp mods/banana.jar pkg.banana.Banana
+echo
+java -p mods -m banana/pkg.banana.Banana
+
+# echo -----------------------------------
+
+# java -cp mods/apple.jar pkg.apple.Apple
+# echo 
+# java -p mods -m apple/pkg.apple.Apple

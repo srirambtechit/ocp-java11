@@ -1,0 +1,55 @@
+TODO:
+- MacAppStudio: watch learning series
+- gRPC udemy course continue
+- MS authendication material
+- OAuth deep dive
+- Listen to college lecture
+- OCP exam prep
+- Apgiee work and preparing of various use cases, its solutions
+- Read Apgiee anitpatter pdf document
+- Learning Haskell, Go, Kotlin, etc., programming language
+- Keith, security points
+- Simply Term1 project work
+- Weird part of JS udemy course continue
+- TypeScript learning follow up
+- College project work
+- Henizin threading course
+- Gradle tutorial
+- GraphQL usecase, sample project
+- Mac Automator app usage
+- Learning ElasticSearch
+- Watch Deep Learning introduction MIT course YouTube
+  - https://www.youtube.com/watch?v=SEnXr6v2ifU&list=PLtBw6njQRU-rwp5__7C0oIVt26ZgjG9NI&index=2
+- Try out 3 github AI related work (voice, image-processing, face-recognition)
+- Office work notes, patterns and use case list preparation 
+  - Apigee
+	  - Two product (internal, external flow) on same endpoints
+		- Office 365 integration
+		- Noroute target endpoint to serve static content
+		- Flow hook and Shared flow usecase
+		- HRDaaS integration
+		- Imposing rest standard
+		- GBTS/CO OAuth Common Proxy implementation
+	- Authentication
+	  - OAuth 2.0
+		- PruMobile
+	- Framework
+	  - Loopback 4
+		- Drools for workflow
+		- Spring Common Util framework
+	- Misc
+	  - WCM integration
+- Authentication mechanism
+  - OAuth 2.0
+	- Kerebrose
+	- Basic auth etc
+- Read books
+  - Java Concurrency in Practice (O'Reilly)
+  - Effective Java (Joshua Bloch)
+  - Practical Model JavaScript (Nicolas Bevacqua)
+  - AWS Certified Solutions Architect Official Study Guide
+  - Java generics
+
+https://github.com/sindresorhus/awesome
+https://github.com/gaerae/awesome-algorithms-education
+https://github.com/enjalot/algovis

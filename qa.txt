@@ -1,0 +1,304 @@
+CH5:
+W -  1. B (C)
+C -  2. A, D, E
+C -  3. G - 
+C -  4. F
+C -  5. E
+C -  6. C
+W -  7. B - (D)
+C -  8. A, D
+C -  9. B, E
+W - 10. F (close() method should remove throws IOException) (B,C)
+W - 11. B -  (C)
+C - 12. A, B
+C - 13. C, D
+W - 14. A (not sure guessing A, should A if it may be) (D)
+C - 15. F
+W - 16. B, D (B,C) silly mistake
+W - 17. E, F (D, F)
+W - 18. F - (C)
+C - 19. D
+C - 20. B
+C - 21. C
+C - 22. E
+C - 23. A, E
+C - 24. E
+W - 25. B - (G)
+C - 26. A, E
+C - 27. E
+-------
+C = 18
+W =  9
+-------
+
+CH7:
+C -  1. D, F
+W -  2. A (A, D)
+W -  3. C, D, F	(ACDF) silly mistake
+W -  4. B, D - (BC)
+C -  5. B, (or) C - (C)
+C -  6. C, E 
+C -  7. D (revise livelock, deadlock,starvation, race condition) 
+W -  8. D (A)
+C -  9. C
+W - 10. F (A)
+W - 11. A, F (F)
+C - 12. B - 
+C - 13. C - 
+C - 14. C, E
+C - 15. A -
+W - 16. D, E (F)
+W - 17. B - (D)
+W - 18. C, G (C, E, G)
+C - 19. F, H
+C - 20. F
+W - 21. A, B - (A, D)
+C - 22. B
+W - 23. A, F (F)
+C - 24. A, F
+W - 25. A, B (A, D)
+W - 26. G (C,D)
+-------
+C = 13 
+W = 13
+-------
+
+CH9:
+W -  1. D (E)
+W -  2. C (F)
+C -  3. C, E
+C -  4. C
+C -  5. B, C -
+W -  6. E, (or) F -
+C -  7. F - 
+C -  8. B, D, G
+W -  9. E -
+C - 10. B, C 
+W - 11. Not sure, maybe incomplete (D)
+C - 12. A, C, E
+W - 13. B (A)
+W - 14. A or F (C)
+C - 15. E
+W - 16. D, F (D, E, F)
+C - 17. B
+W - 18. A, C (A, D)
+C - 19. D
+W - 20. A (B)
+W - 21. F (B)
+W - 22. C, E (B, E)
+-------
+C = 10
+W = 12
+-------
+
+CH3:
+W -  1. A, B, E (B)
+C -  2. D
+W -  3. E, G (C, G)
+C -  4. D 
+W -  5. B, D, F (B, F)
+C -  6. B -
+C -  7. A, D
+W -  8. F - (B, F)
+W -  9. A, C (E) // silly mistake map.add(key,value) not valid, ans is map.put(key, value)
+W - 10. C - (A)
+C - 11. A - 
+C - 12. A, B, D
+C - 13. B, E
+C - 14. C -
+C - 15. A
+C - 16. B, D, F
+W - 17. B, D, E (B, D)
+C - 18. A, B
+W - 19. B, D - (A, D)
+W - 20. A (E) silly mistake - map has no contains() method
+C - 21. A, E
+C - 22. B
+C - 23. B, E
+W - 24. B, C, F (F) silly mistake
+W - 25. H (F) revisit map.merge fn
+-------
+C = 14
+W = 11
+-------
+
+CH4:
+C -  1. D
+C -  2. F
+C -  3. E
+W -  4. A,B,E (check A,B)
+C -  5. C,F
+W -  6. F (check A)
+C -  7. F
+C -  8. D,E
+C -  9. B,D
+C - 10. F  chk ans
+W - 11. D,E (check B,C,E)
+W - 12. D,F,G - (check B,F,G)
+C - 13. F
+W - 14. B,D,E (check B,D)
+C - 15. B,D
+C - 16. B,C -
+C - 17. E
+C - 18. D
+W - 19. B (check A)
+W - 20. C,D,E (check A,C,E)
+C - 21. B
+C - 22. C,E
+------
+C = 15
+W =  7
+------
+
+
+CH6:
+W -  1. E (check D)
+C -  2. E, F 
+W -  3. A, B, C, E (check A, B, E)
+W -  4. A, C (check A, E)
+C -  5. B
+C -  6. F
+W -  7. E, F, G (check A, B, C, F)
+C -  8. D
+W -  9. B, C (check C) Wrong Answer (None of the above)
+C - 10. B
+C - 11. A
+W - 12. B, D (check B)
+C - 13. A, E, F
+C - 14. B, E, F
+X - 15. B -- tricky
+W - 16. E (check A) -- tricky
+C - 17. A, F 
+W - 18. A, C (check A, C, D)
+W - 19. D, E (check C, E)
+C - 20. E
+----------
+C - 10
+W - 9
+----------
+
+CH 6: #15
+Suppose you have separate modules for a service provider interface, service provider, service locator, and consumer. Which module(s) need to specify a requires directive
+on the service provider?  
+A) Service locator 
+B) Service provider interface 
+C) Consumer 
+D) Consumer and service locator 
+E) Consumer and service provider 
+F) Service locator and service provider interface 
+G) Consumer, service locator, and service provider interface 
+H) None of the above
+
+service loader pattern
+familiarize with jdk modules
+
+  (requires)   (requires)
+    wand         potion
+		  |            |
+		  |            |
+		  |            |
+		  +-> helper <-+
+			  (exports)
+
+CH1:
+C - 1. A, D
+C - 2. C
+W - 3. B (check C) 
+C - 4. B, F
+C - 5. B, D 
+C - 6. C, E
+W - 7. D (check F) -- enum --
+C - 8. A, C
+W - 9. C, F (check G) -- trick -- 
+C - 10. E
+W - 11. E (check D)
+C - 12. C
+C - 13. E, G
+C - 14. E
+C - 15. G
+C - 16. A, D, E 
+W - 17. G (check A, F) -- lambda 
+W - 18. C, D, F (check C, D, G) --
+C - 19. D
+W - 20. A, B (check A, B, C, D)
+C - 21. B, E
+W - 22. D (check D, F)
+C - 23. C, F
+C - 24. E (check)
+C - 25. B
+---------
+C - 17
+W - 8
+---------
+
+Sample questions:
+C- 1. D
+W- 2. B
+  /bats/day
+  path = /bats/night/../sleep.txt = /bats/sleep.txt
+  file = /bats/sleep.txt
+  path = returns normalized path
+  realPath = returns full path
+  true, false
+C- 3. C
+W- 4. D, G
+W- 5. D
+W- 6. A, B, C, D
+C- 7. E
+W- 8. A, B
+C- 9. D
+W-10. A
+W-11. A
+W-12. B, F (considering all class belong to same pacakge)
+W-13. F
+W-14. G
+W-15. B, C
+C-16. B
+C-17. E
+W-18. B, D, E
+C-19. E
+C-20. D
+C-21. D
+W-22. E
+---------
+C =  9
+W = 13
+---------
+
+
+Completed chapters:
+Appendix A “Module introduction”                       
+Sample questions                                       pass 35% (9/13)
+Chapter 1, “Java fundamentals”                         pass 70% (17/8)
+Chapter 4, “Funcational Programming”                   pass 70% (15/7)
+Chapter 6, “Modular applications”                      pass 55% (10/9)
+Chapter 3, “Generics and Collections”                  pass 60% (14/11)
+Chapter 9, “NIO.2”                                     pass 42% (10/12)
+Chapter 7, “Concurrency”                               pass 50% (13/13)
+Chapter 5, “Exceptions, Assertions, and Localization”  pass 66% (18/9)
+
+Chapters to skip:
+Chapter 2, “Annotations” 
+Chapter 8, “I/O” 
+Chapter 10, “JDBC” 
+Chapter 11, “Security”
+
+Online Test:
+https://www.wiley.com/WileyCDA/Section/id-827755.html
+https://www.efficientlearning.com/login/
+sriram007m@gmail.com/Sriram123$
+https://app.efficientlearning.com/my-account/
+
+
+bit.ly/SybexTest
+https://www.selikoff.net/ocp11-2/			
+
+http://java.boot.by/ocpjd11-upgrade-quiz/sample.question.html
+http://java.boot.by/ocpjd11-upgrade-guide/ch01.html
+http://java.boot.by/ocpjd11-upgrade-quiz/pr01.html
+
+
+https://blogs.oracle.com/certification/your-guide-to-oracle-certification-testing-anywhere
+
+secure code:
+https://owasp.org/www-project-top-ten/

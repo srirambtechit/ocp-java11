@@ -1,0 +1,11 @@
+
+mkdir apple banana mods;mkdir -p apple/src/pkg/apple apple/classes;mkdir -p banana/src/pkg/banana banana/classes
+touch apple/src/pkg/apple/Apple.java;touch banana/src/pkg/banana/Banana.java
+
+
+
+javac -d banana/classes banana/src/**/*.java
+jar -cvf mods/banana.jar -C banana/classes .
+java -cp mods/banana.jar pkg.banana.Banana
+java -p mods -m banana/pkg.banana.Banana
+

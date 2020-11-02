@@ -1,0 +1,299 @@
+// 8. FUNCTION SCOPE
+myHobby = "Coding"; // global scope
+
+let person = { // scope1
+	first: 'Sriram',
+	last: 'Muthaiah',
+	age: 32, 
+	fullName: function() { // scope2
+		// here this refers scope1 block's variables
+		console.log('this of scope2 is ' + this);
+		
+		let myName = this.first + " " + this.last;
+		let myHobby = "coding";
+		let self = this;
+		myGlobal = "global"; // global variable as it is not declared with let, const or var
+	
+		let salute = function() { // scope3
+			// here this refers to global scope variables
+			console.log('this of scope3 is ' + this);
+			
+			console.log("hobby : " + this.myHobby); // global scope variable
+			console.log("myGlobal : " + this.myGlobal); 
+			return "Mr. " + self.first; // this refers to scope2 by self variable
+		}
+		console.log(salute());
+		return myName;
+	}
+}
+
+console.log(person);
+console.log(person.fullName())
+
+// 7. GOESTO OPERATOR
+let i = 3
+while(i --> 0) // goesto operator
+	console.log(i);
+
+// 6. PASS FUNCTION TO FUNCTION
+function map(f, numbers) {
+	let array = [];
+	for(n of numbers) {
+		let result = f(n);
+		array.push(result);
+	}
+	return array;
+}
+
+let numbers = [2, 3, 8, 4];
+const cube = (n) => n * n * n;
+
+console.log(map(cube, numbers));
+console.log(
+	numbers.map(n => cube(n))
+);
+	
+// 5. CLOJURES
+# A closure is a function having access to the parent scope, even after the parent function has closed.
+
+# Explanation:
+# The variable add is assigned the return value of a self-invoking function.
+# The self-invoking function only runs once. It sets the counter to zero (0), and returns a function expression.
+# This way add becomes a function. The "wonderful" part is that it can access the counter in the parent scope.
+# This is called a JavaScript closure. It makes it possible for a function to have "private" variables.
+# The counter is protected by the scope of the anonymous function, and can only be changed using the add function.
+
+// function add() {
+// 	var counter = 0;
+// 	function plus() {	counter += 1; }
+// 	plus();
+// 	return counter;
+// }
+
+const add = (function() {
+	var counter = 0;
+	return function() { counter += 1; return counter; }
+})();
+
+fn1 = add();
+console.log(fn1);
+
+fn2 = add();
+console.log(fn2);
+
+fn3 = add();
+console.log(fn3);
+
+// 4. GLOBAL VS LOCAL SCOPE TRICK #1
+function scope() {
+	name = "Global"; // when no var, let, const keyword in declaration, it is global scope
+	let local = "Local";
+	console.log(`${name} and ${local}`);
+}
+
+scope();
+console.log(name);
+
+
+// 3. REST, SPREAD OPERATORS
+const sum = function(...numbers) { // rest
+	console.log(
+		numbers.reduce((total, number) => { return total + number})
+	);
+}
+
+sum(1, 2, 3);
+sum(1, 2, 3, ...[4, 5, 6]); // spread
+sum(1, 2, ...[3, 4], ...[5, 6]);
+
+//  default parameters
+const greet = function(name, msg = 'Hi') {
+	console.log(`${msg}, ${name}`);
+}
+
+greet("Sriram", "Hello")
+greet("Sriram");
+greet("Sriram", undefined); // default parameter handles undefined
+greet("Sriram", null); // However, null will not be handled 
+
+let number = 2; // number, boolean, string, object
+console.log(typeof number);
+
+// 2. ENHANCED FOR LOOP
+let numbers = [11, 12, 13, 14, 15]
+
+for(let i = 0; i < numbers.length; i++) {
+	console.log(`${i} -> ${numbers[i]}`)
+}
+
+console.log('----');
+
+for(n of numbers) {
+	console.log(n);
+}
+
+console.log('----');
+
+// destructuring values from iterable types
+// for(entry of numbers.entries()) {
+// 	let [k, v] = entry
+// 	console.log(`${k} => ${v}`);
+// }
+
+for([k, v] of numbers.entries()) {
+	console.log(`${k} => ${v}`);
+}
+
+console.log('----');
+
+// find sum of all even numbers multiplied by 2
+
+// imperative style
+let total = 0;
+for(number of numbers) {
+	if (number % 2 == 0) {
+		total += number * 2;
+	}
+}
+console.log(total);
+
+// functional style
+console.log(
+	numbers.filter( n => n % 2 == 0)
+		.map(n => n * 2)
+		.reduce((total, n) => total + n)
+)
+
+// 1. DESTRUCTURING 
+// objects
+let { id, name } = { id: 123, name: "Sriram" };
+console.log(id); // 123
+console.log(name); // Sriram
+
+const user = { first: "Sriram", last: "Muthaiah", age: 32 };
+let { first, age } = user
+console.log(first); // Sriram
+console.log(age); // 32
+
+const order = { orderId: 100, items: ["apple", "banana", "orange"] };
+let { orderId, ...items } = order;
+console.log(orderId); // Sriram
+console.log(items); // Rest of the objects
+
+// extract from array
+let values = [1, 2, 3, 4]
+let [a, b, ...c] = values
+console.log(a); // 1
+console.log(b); // 2
+console.log(c); // 3, 4
+
+
+// Tail recursive by Venkat Subramaniyam
+import java.util.*;
+import java.math.BigInteger;
+import java.util.stream.*;
+// import static TailCalls.done;
+// import static TailCalls.call;
+
+interface TailCall<T> {
+	TailCall<T> apply();
+	default boolean isComplete() { return false; }
+	default T result() { return null; }
+
+//	default T invoke() {
+// 		boolean callComplete = isComplete();
+// 		TailCall<T> current = this;
+// 		while(!callComplete) {
+// 			current = current.apply();
+// 			callComplete = current.isComplete();
+// 		}
+// 		return current.result();
+// 	}
+
+	default T invoke() {
+		return Stream.iterate(this, TailCall::apply)
+		.filter(TailCall::isComplete)
+		.findFirst()
+		.get()
+		.result();
+	}
+}
+
+class TailCalls {
+	public static <T> TailCall<T> call(TailCall<T> nextCall) {
+		return nextCall;
+	}
+	
+	public static <T> TailCall<T> done(T value) {
+		return new TailCall<T>() {
+			public boolean isComplete() { return true; }
+			public T result() { return value; }
+			public TailCall<T> apply() { return null; }
+		};
+	}
+}
+
+class Util {
+	public static BigInteger multiply(BigInteger bigInt, int number) {
+		return bigInt.multiply(BigInteger.valueOf(number));
+	}
+}
+
+public class Sample {
+	
+	public static void main(String[] args) throws Exception {
+		// System.out.println(factorial(BigInteger.valueOf(5000)));
+		System.out.println(factorial(BigInteger.ONE, 50000).invoke());
+	}
+	
+	public static TailCall<BigInteger> factorial(BigInteger fact, int number) {
+		if (number == 1)
+			return TailCalls.done(fact);
+		else
+			return TailCalls.call(() -> factorial(Util.multiply(fact, number), number - 1));
+	}
+	
+	public static BigInteger factorial(BigInteger number) {
+		if (number.equals(BigInteger.ZERO))
+			return BigInteger.ONE;
+		else
+			return number.multiply(factorial(number.subtract(BigInteger.ONE)));
+	}
+	
+}
+
+
+
+import java.io.*;
+import java.nio.*;
+import java.nio.file.*;
+import java.util.*;
+import java.util.function.*;
+import java.util.stream.*;
+
+public class Sample {
+	
+	public static void main(String[] args) throws Exception {
+		List<String> names = List.of("James", "Paul", "Simon", "Peter", "John", "Joe", "Jill", "Sachin", "Alex", "Rob", "Bob", "Alive");
+		// generate encoded name by replacing the letter at odd index into ASCII value
+		// James -> J93m97s
+		// names.stream()
+// 			.map(name -> name.chars())
+// 			// .map(Sample::process)
+// 			.forEach(System.out::println);
+//
+		// stream<String> -> stream<Stream<Int>> -> stream<Stream<evenIndex>> -> stream<Stream<Int>> -> stream<String>
+		process("Sriram".toCharArray());
+	}
+	
+	static void process(char[] chars) {
+		IntStream.range(0, chars.length)
+			.collect(HashMap<Integer, Character>::new, (map, i) -> map.put(i, chars[i]), HashMap::putAll)
+			.entrySet()
+			.stream()
+			.filter(e -> e.getKey() % 2 != 0)
+			.mapToInt(e -> e.getValue())
+			.forEach(e -> System.out.println(e));
+	}
+	
+}
