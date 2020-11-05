@@ -55,6 +55,19 @@ new Danger() {} // won't work, final cannot be extended
          protected final class IceCream {} 
        }
 
+10. By default catch statement parameter is implicitly final, but still it is 
+    ok to assign a exception to that variable just by casting another exception.
+		But in multi-catch statement, can't assign any value inside that block
+		e.g try {
+		    } catch(Exception e) { // e is implicitly final
+				  e = (IOException) e; // casting and assignment is ok
+				}
+				
+				try {
+				} catch (IOException | SQLException e) { // still e implicitly final
+				  e = (IOException) e; // compilation error, assignmnet not allowed
+				}
+		
 jdeps mods/apple.jar
 jdeps -v mods/apple.jar
 jdeps -s mods/apple.jar
@@ -2432,6 +2445,55 @@ public class Sample {
 // acc => 1 + 2 = 3
 // acc => 3 + 3 => 6 is output
 // Note that combiner task is ignored due to sequential mode
+
+
+Tricky question-5:
+public class Sample {
+	
+	public static void main(String[] args) throws Exception {
+		FooBar f = new FooBar();
+		f.print();
+	}
+	
+}
+
+interface Foo {
+	String s = "foo";
+	void m();
+}
+
+interface Bar extends Foo {
+	String s = "bar";
+}
+
+
+class ParentFooBar {
+	String s = "parentfoobar";
+	public String toString() {
+		return "ParentFooBar instance";
+	}
+}
+
+class FooBar extends ParentFooBar {
+	String s = "foobar";
+	void print() {
+		Bar b = () -> {
+			System.out.println(s);
+			System.out.println(this.s);
+			System.out.println(super.s);
+			
+			System.out.println("--------");
+			System.out.println(this.toString());
+			System.out.println(super.toString());
+		};
+		b.m();
+	}
+	
+	public String toString() {
+		return "FooBar instance";
+	}
+}
+
 
 
 Out of syllabus:
