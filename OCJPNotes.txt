@@ -57,17 +57,17 @@ new Danger() {} // won't work, final cannot be extended
 
 10. By default catch statement parameter is implicitly final, but still it is 
     ok to assign a exception to that variable just by casting another exception.
-		But in multi-catch statement, can't assign any value inside that block
-		e.g try {
-		    } catch(Exception e) { // e is implicitly final
-				  e = (IOException) e; // casting and assignment is ok
-				}
-				
-				try {
-				} catch (IOException | SQLException e) { // still e implicitly final
-				  e = (IOException) e; // compilation error, assignmnet not allowed
-				}
-		
+    But in multi-catch statement, can't assign any value inside that block
+    e.g try {
+        } catch(Exception e) { // e is implicitly final
+          e = (IOException) e; // casting and assignment is ok
+        }
+        
+        try {
+        } catch (IOException | SQLException e) { // still e implicitly final
+          e = (IOException) e; // compilation error, assignmnet not allowed
+        }
+    
 jdeps mods/apple.jar
 jdeps -v mods/apple.jar
 jdeps -s mods/apple.jar
@@ -532,14 +532,14 @@ IntStream: input is always "int"
                  |                                         |                                          |
 5. reduces       | Optional reduce(BinaryOperator)         | OptionalInt reduce​(IntBinaryOperator op) |
                  |                                         |                                          | 
-								 | T reduce(                               |                                          |
-								 |     T identity,                         | int reduce​(int identity,                 |
-								 |     BinaryOperator accumulator)         |            IntBinaryOperator op)         |
-								 |                                         |                                          |
-								 | <U> U reduce(                           |                                          |
-								 |     U identity,                         |                                          |
-								 |     BiFunction accumulator              |                                          |
-								 |     BinaryOperator combiner)            |                                          |
+                 | T reduce(                               |                                          |
+                 |     T identity,                         | int reduce​(int identity,                 |
+                 |     BinaryOperator accumulator)         |            IntBinaryOperator op)         |
+                 |                                         |                                          |
+                 | <U> U reduce(                           |                                          |
+                 |     U identity,                         |                                          |
+                 |     BiFunction accumulator              |                                          |
+                 |     BinaryOperator combiner)            |                                          |
                  |                                         |                                          |
 6. drop/take     | dropWhile(Predicate)                    | dropWhile(Int/Long/DoublePredicate)      |
                  | takeWhile(Predicate)                    | takeWhile(Int/Long/DoublePredicate)      |
@@ -550,15 +550,15 @@ IntStream: input is always "int"
                  | Optional max(Comparator c)              | OptionalInt min(Comparator c)            |
                  | Optional reduce(BinaryOperator op)      | OptionalInt max(Comparator c)            |
                  |                                         | OptionalInt reduce(IntBinaryOperator op) |
-								 |                                         |                                          |
+                 |                                         |                                          |
 8. Collect       | <R> R                                   | <R> R collect​(Supplier<R> supplier,      |
                  |  collect​(Supplier<R> supplier,          |       ObjIntConsumer<R> accumulator,     |
                  |    BiConsumer<R,​? super T> accumulator, |       BiConsumer<R,​R> combiner)          |
-                 |    BiConsumer<R,​R> combiner)	           |                                          |
+                 |    BiConsumer<R,​R> combiner)             |                                          |
                  |                                         |                                          |
                  |  <R,​A>                                  |                                          |
-                 |  R	collect​(                             |                                          |
-								 |	 Collector<? super T,​A,​R> collector)   |                                          |
+                 |  R  collect​(                             |                                          |
+                 |   Collector<? super T,​A,​R> collector)   |                                          |
                  |                                         |                                          |
 -----------------+-----------------------------------------+------------------------------------------+
 
@@ -2293,26 +2293,26 @@ public class Sample {
 
 Tricky question-1:
 interface Foo<T> {
-	T apply(T amout, T rate);
+  T apply(T amout, T rate);
 }
 
 public class Sample {
-	
-	public static void main(String[] args) throws Exception {
-		Double amount = 1000.00;
-		Double rate = 0.01;
-		calculate(amount, rate, new Foo<Double>() {
-			public Double apply(Double a, Double r) {
-			  return a + a * r;	
-			}
-		}::apply);
-	}
-	
-	static void calculate(Double amount, Double rate, Foo<Double> fn) {
-		Double result = fn.apply(amount, rate);
-		System.out.println(result);
-	}
-	
+  
+  public static void main(String[] args) throws Exception {
+    Double amount = 1000.00;
+    Double rate = 0.01;
+    calculate(amount, rate, new Foo<Double>() {
+      public Double apply(Double a, Double r) {
+        return a + a * r;  
+      }
+    }::apply);
+  }
+  
+  static void calculate(Double amount, Double rate, Foo<Double> fn) {
+    Double result = fn.apply(amount, rate);
+    System.out.println(result);
+  }
+  
 }
 
 
@@ -2321,13 +2321,13 @@ import java.util.*;
 import java.util.stream.*;
 
 public class Sample {
-	
-	public static void main(String[] args) throws Exception {
-		Person person = new Person("Joe");
-		Stream<Person> stream = Stream.of(person);
-		stream.forEach(Person::print);
-	}
-	
+  
+  public static void main(String[] args) throws Exception {
+    Person person = new Person("Joe");
+    Stream<Person> stream = Stream.of(person);
+    stream.forEach(Person::print);
+  }
+  
 }
 
 // cfr java.util.stream.Stream
@@ -2344,65 +2344,65 @@ public class Sample {
 // }
 
 // javac -Xdiags:verbose Sample.java
-// 	Sample.java:9: error: method forEach in interface Stream<T> cannot be applied to given types;
-// 			stream.forEach(Person::print);
-// 			      ^
-// 	  required: Consumer<? super Person>
-// 	  found: Person::print
-// 	  reason: argument mismatch; invalid method reference
-// 	      unexpected instance method print(Person) found in unbound lookup
-// 	  where T is a type-variable:
-// 	    T extends Object declared in interface Stream
-// 	1 error
-				
+//   Sample.java:9: error: method forEach in interface Stream<T> cannot be applied to given types;
+//       stream.forEach(Person::print);
+//             ^
+//     required: Consumer<? super Person>
+//     found: Person::print
+//     reason: argument mismatch; invalid method reference
+//         unexpected instance method print(Person) found in unbound lookup
+//     where T is a type-variable:
+//       T extends Object declared in interface Stream
+//   1 error
+        
 
 class Person {
-	String name;
-	
-	Person(String name) {
-		this.name = name;
-	}
-	
-	// // unexpected static method print() found in unbound lookup
-	// static void print() {
-	// 	System.out.println("name");
-	// }
-	
+  String name;
+  
+  Person(String name) {
+    this.name = name;
+  }
+  
+  // // unexpected static method print() found in unbound lookup
+  // static void print() {
+  //   System.out.println("name");
+  // }
+  
  // // compilation failed: unbound lookup
- // 	void print(Person p) {
- // 		System.out.println(p.name);
- // 	}
+ //   void print(Person p) {
+ //     System.out.println(p.name);
+ //   }
 
  // // works
- // 	static void print(Person p) {
- // 		System.out.println(p.name);
- // 	}
+ //   static void print(Person p) {
+ //     System.out.println(p.name);
+ //   }
 
  // works
- 	String print() {
- 		System.out.println(name);
- 		return name;
- 	}
-	
+   String print() {
+     System.out.println(name);
+     return name;
+   }
+  
 }
 
 Tricky question-3:
 public class Sample {
-	
-	public static void main(String[] args) throws Exception {
-		List<Integer> list = Arrays.asList(-2, -1, 0, 1, 2, 3, 4);
-		
-		Predicate<Integer> positive = n -> { System.out.format("filter[%d]%n", n); return n > 0; };
-		Predicate<Integer> negative = n ->{ System.out.format("allMatch[%d]%n", n); return n < 0; };
-		
-		var result = list.stream()
-			.filter(positive)
-			.allMatch(negative);
-		
-		System.out.println();
-		System.out.println(result);
-	}
-		
+  
+  public static void main(String[] args) throws Exception {
+    List<Integer> list = Arrays.asList(-2, -1, 0, 1, 2, 3, 4);
+    
+    Predicate<Integer> positive = n -> { System.out.format("filter[%d]%n", n); return n > 0; };
+    Predicate<Integer> negative = n ->{ System.out.format("allMatch[%d]%n", n); return n < 0; };
+    
+    var result = list.stream()
+      .filter(positive)
+      .allMatch(negative);
+    
+    System.out.println();
+    System.out.println(result);
+  }
+    
 }
 
 Tricky question-4:
@@ -2410,28 +2410,28 @@ import java.util.*;
 import java.util.stream.*;
 
 public class Sample {
-	
-	public static void main(String[] args) throws Exception {
-		List<Integer> list = List.of(1,2,3,4,5,6,7);
-		// int result = list.parallelStream().reduce(1, Integer::sum, (a, b) -> a * b);
-		
-		System.out.println(list);
-		System.out.println();
-		int result = list
-			// .parallelStream()
-			.stream()
-			.reduce(10, (a, b) -> {
-					System.out.format("[%4d + %5d = %8d, %32s]%n", a, b, a + b, Thread.currentThread().getName());
-					return a + b;
-				},
-				(a, b) -> {
-					System.out.format("[%4d * %5d = %8d, %32s]%n", a, b, a * b, Thread.currentThread().getName());
-					return a * b;
-				});
+  
+  public static void main(String[] args) throws Exception {
+    List<Integer> list = List.of(1,2,3,4,5,6,7);
+    // int result = list.parallelStream().reduce(1, Integer::sum, (a, b) -> a * b);
+    
+    System.out.println(list);
+    System.out.println();
+    int result = list
+      // .parallelStream()
+      .stream()
+      .reduce(10, (a, b) -> {
+          System.out.format("[%4d + %5d = %8d, %32s]%n", a, b, a + b, Thread.currentThread().getName());
+          return a + b;
+        },
+        (a, b) -> {
+          System.out.format("[%4d * %5d = %8d, %32s]%n", a, b, a * b, Thread.currentThread().getName());
+          return a * b;
+        });
 
-		System.out.println(result);
-	}
-	
+    System.out.println(result);
+  }
+  
 }
 
 // parallel
@@ -2449,49 +2449,49 @@ public class Sample {
 
 Tricky question-5:
 public class Sample {
-	
-	public static void main(String[] args) throws Exception {
-		FooBar f = new FooBar();
-		f.print();
-	}
-	
+  
+  public static void main(String[] args) throws Exception {
+    FooBar f = new FooBar();
+    f.print();
+  }
+  
 }
 
 interface Foo {
-	String s = "foo";
-	void m();
+  String s = "foo";
+  void m();
 }
 
 interface Bar extends Foo {
-	String s = "bar";
+  String s = "bar";
 }
 
 
 class ParentFooBar {
-	String s = "parentfoobar";
-	public String toString() {
-		return "ParentFooBar instance";
-	}
+  String s = "parentfoobar";
+  public String toString() {
+    return "ParentFooBar instance";
+  }
 }
 
 class FooBar extends ParentFooBar {
-	String s = "foobar";
-	void print() {
-		Bar b = () -> {
-			System.out.println(s);
-			System.out.println(this.s);
-			System.out.println(super.s);
-			
-			System.out.println("--------");
-			System.out.println(this.toString());
-			System.out.println(super.toString());
-		};
-		b.m();
-	}
-	
-	public String toString() {
-		return "FooBar instance";
-	}
+  String s = "foobar";
+  void print() {
+    Bar b = () -> {
+      System.out.println(s);
+      System.out.println(this.s);
+      System.out.println(super.s);
+      
+      System.out.println("--------");
+      System.out.println(this.toString());
+      System.out.println(super.toString());
+    };
+    b.m();
+  }
+  
+  public String toString() {
+    return "FooBar instance";
+  }
 }
 
 
