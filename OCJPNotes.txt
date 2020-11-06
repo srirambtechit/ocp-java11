@@ -67,7 +67,21 @@ new Danger() {} // won't work, final cannot be extended
         } catch (IOException | SQLException e) { // still e implicitly final
           e = (IOException) e; // compilation error, assignmnet not allowed
         }
+
+11. a) Interface default method can't be overriden as static method in a class that implements that interface
+    b) Interface static method can be overriden as instance method in a class that implements that interface
+    c) Interface A has static method, same method overriden as instance method in class B implements A, then polymorphically can't invoke interface static method. 
+    e.g A a = new B(); a.m(); leads to compiler error
     
+    interface A {
+      static void m() { System.out.println("A");}
+    }
+    
+    class B implements A {
+      public void m() { System.out.println("B"); }
+    }
+    
+
 jdeps mods/apple.jar
 jdeps -v mods/apple.jar
 jdeps -s mods/apple.jar
@@ -411,6 +425,9 @@ Automatic      Y        N           Y
 Unnamed        Y        N           N       
 
 
+Go through lambda rules:
+https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-15.27
+
 Collections & Streams:
 
 https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps
@@ -531,7 +548,7 @@ IntStream: input is always "int"
                  |                                         | summaryStatistics                        |
                  |                                         |                                          |
 5. reduces       | Optional reduce(BinaryOperator)         | OptionalInt reduce​(IntBinaryOperator op) |
-                 |                                         |                                          | 
+                 |                                         |                                          |
                  | T reduce(                               |                                          |
                  |     T identity,                         | int reduce​(int identity,                 |
                  |     BinaryOperator accumulator)         |            IntBinaryOperator op)         |
@@ -554,10 +571,10 @@ IntStream: input is always "int"
 8. Collect       | <R> R                                   | <R> R collect​(Supplier<R> supplier,      |
                  |  collect​(Supplier<R> supplier,          |       ObjIntConsumer<R> accumulator,     |
                  |    BiConsumer<R,​? super T> accumulator, |       BiConsumer<R,​R> combiner)          |
-                 |    BiConsumer<R,​R> combiner)             |                                          |
+                 |    BiConsumer<R,​R> combiner)            |                                          |
                  |                                         |                                          |
                  |  <R,​A>                                  |                                          |
-                 |  R  collect​(                             |                                          |
+                 |  R  collect​(                            |                                          |
                  |   Collector<? super T,​A,​R> collector)   |                                          |
                  |                                         |                                          |
 -----------------+-----------------------------------------+------------------------------------------+
@@ -630,6 +647,7 @@ collect operation takes 3 different sub tasks
                     (r, e) -> r.add(e.length()),
                     (r, e) -> r.addAll(e));
 
+In sequential stream, combiner is ignored
 In Parallel stream, it works as per the below illustration 
 
    SUPPLIER TASK                   ACCUMULATOR TASK                               COMBINER TASK
