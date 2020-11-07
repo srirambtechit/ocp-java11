@@ -1,3 +1,3 @@
-module com.apple {
-  requires banana;  
+module apple {
+  exports pkg.apple;
 }

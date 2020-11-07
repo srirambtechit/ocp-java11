@@ -7,7 +7,7 @@
 javac -d banana/classes banana/src/**/*.java || exit
 jar -cf mods/banana.jar -C banana/classes .
 
-javac -p mods/banana.jar -d apple/classes apple/src/**/*.java || exit
+javac -cp mods/* -d apple/classes apple/src/**/*.java || exit
 jar -cf mods/apple.jar -C apple/classes .
 
 # unnamed module access another unnamed module - Works

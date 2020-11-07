@@ -1,4 +1,190 @@
+OCP 11 Exam Preparation
+
+https://education.oracle.com/upgrade-ocp-java-6-7-8-to-java-se-11-developer/pexam_1Z0-817
+
+https://home.pearsonvue.com/oracle/onvue
+
+http://java.boot.by/ocpjd11-upgrade-guide/index.html
+
+http://java.boot.by/ocpjd11-upgrade-quiz/
+
+Understanding Modules
+*     Describe the Modular JDK
+*     Declare modules and enable access between modules
+*     Describe how a modular project is compiled and run
+Services in a Modular Application
+*     Describe the components of Services including directives
+*     Design a service type, load services using ServiceLoader, check for dependencies of the services including consumer and provider modules
+Java Interfaces
+*     Create and use methods in interfaces
+*     Define and write functional interfaces
+Lambda Operations on Streams
+*     Extract stream data using map, peek and flatMap methods
+*     Search stream data using search findFirst, findAny, anyMatch, allMatch and noneMatch methods
+*     Use the Optional class
+*     Perform calculations using count, max, min, average and sum stream operations
+*     Sort a collection using lambda expressions
+*     Use Collectors with streams, including the groupingBy and partitioningBy operation
+Java File I/O (NIO.2)
+*     Use Path interface to operate on file and directory paths
+*     Use Files class to check, delete, copy or move a file or directory
+*     Use Stream API with Files
+Migration to a Modular Application
+*     Migrate the application developed using a Java version prior to SE 9 to SE 11 including top-down and bottom-up migration, splitting a Java SE 8 application into modules for migration
+*     Use jdeps to determine dependencies and identify way to address the cyclic dependencies
+Local Variable Type Inference
+*     Use local variable type inference
+*     Create and use lambda expressions with local variable type inferred parameters
+Lambda Expressions
+*     Create and use lambda expressions
+*     Use lambda expressions and method references
+*     Use built-in functional interfaces including Predicate, Consumer, Function, and Supplier
+*     Use primitive and binary variations of base interfaces of java.util.function package
+Parallel Streams
+*     Develop the code that use parallel streams
+*     Implement decomposition and reduction with streams
+Language Enhancements
+*     Use try-with-resources construct
+*     Develop code that handles multiple Exception types in a single catch block
+
+
+Oracle Course:
+Objectives
+*     Identify deprecated APIs and possible alternatives
+*     Swap sub-optimal or tedious coding with convenience methods
+*     Create a modular Java application
+*     Run applications that combine modularized libraries and non-modularized libraries
+*     Create a custom runtime image
+*     Build Multi-release JAR files
+*     Design interfaces which implement methods
+*     Process stream data using new convenience methods
+*     Leverage JShell for fast code experiments
+*     Identify and apply new methods to more conveniently work with collections and arrays
+*     Identify and address common requirements in migrating older applications to modularity
+
+Topics
+*     Why Modules?
+*     Working with the Module System
+*     Modular JDK
+*     Creating Custom Runtime Images
+*     Migration
+*     Services
+*     Multi-release JAR files
+*     Private Interface Methods
+*     Enhancements to the Stream API
+*     JShell
+*     Convenience Methods for Collections
+*     Convenience Methods for Arrays
+*     Enhanced Deprecations for APIs
+
 watch out:
+Hints & Tricks:
+
+Chapter 7: Methods and Encapsulation
+
+Automatic converstion rules:
+1. exact match (primitive, type, object, vararg, array)
+3. primitive to wrapper
+2. lower to upper primitive promotion
+
+Tip 1:
+// No compile (int -> long -> Long won't happen)
+method(3)
+void method(Long l) {}
+
+// Compile & Run (int -> long happens)
+method(3)
+void method(long l) {}
+
+
+
+Varargs:
+Tip 2:
+// No compile, as both are same
+public void print(Integer[] ints) {}
+public void print(Integer... ints) {}
+
+
+
+Arrays vs Varargs:
+Tip 3:
+// Compiles & Run (int[] and Integer[] are allowed) considering 2 different things
+public void print(int[] ints) {}
+public void print(Integer[] ints) {}
+
+Tip 4:
+// calling arrays vs varags
+public void print(String... strings) {}
+public void print(Integer[] ints) {}
+
+print("a", "b", "c") // in vararg, allowed
+print(new String[] {"a", "b", "c"}) // in vararg, allowed
+
+print(1, 2, 3) // in array, not allowed
+print(new Integer[] {1, 2, 3}) // in array, allowed
+
+
+
+static vs instance method invocation
+Tip 5:
+static links with class
+instance links with each object of a class
+Legal, static method call be invoked from instance methods
+Illegal, instance method can be invoked from static methods
+
+class App {
+  void instanceMethod() {
+      staticMethod()          // Allowed
+  }
+
+  static void staticMethod() {
+    instanceMethod()            // Not allowed
+                new App().instanceMethod()   // Allowed
+  }
+}
+
+Tip 6:
+// Legal, static method invoked all the time
+Cola c = new Cola();
+c.staticMethod()
+c = null;
+c.staticMethod() // never thorwo NullPointerException
+Cola.staticMethod()
+
+protected tricky code
+Tip 7:
+package a;
+public class Bird {
+    protected String name;
+    protected void print() {
+        System.out.println("bird printing");
+        System.out.println(name);
+    }
+}
+
+package a;
+public class GoodBird {
+    public void makeNoise() {
+        Bird b = new Bird();
+        b.print();    // legal, as b instance created inside same package (a)
+    }
+}
+
+package b;
+public class Swan extends Bird {
+    public void display() {
+        print();                                 // allowed as Swan extends Bird
+        System.out.println(name.toUpperCase());  // name is accessible as Swan extends Bird
+    }
+   public void show() {
+        Bird b = new Bird();
+        b.print();      // Not compile, as b.print() is not visible outside package a
+        Swan swan = new Swan();
+        swan.print();
+    }
+}
+
+
 1. interface Action {}
 new Action() // compilation error
 new Action() {} // works like a charm
@@ -80,7 +266,14 @@ new Danger() {} // won't work, final cannot be extended
     class B implements A {
       public void m() { System.out.println("B"); }
     }
-    
+
+12. Interface rules
+    - You cannot override default method as a static method in an interface.
+		- You cannot override static of an interface to a static method of a class implements that interface
+		- You can add instance method of a static method of an interface to a class implements that interface
+		  - cannot call that method dynamic polymorphic way. 
+			  e.g Interface i = new InterfaceImplClass(); i.method();
+
 
 jdeps mods/apple.jar
 jdeps -v mods/apple.jar
@@ -275,6 +468,25 @@ public final class java.util.ServiceLoader<S> implements java.lang.Iterable<S> {
   - provides type to mod
   - uses type
 
+Which three of the following are correct about the Java module system?
+C - If a request is made to load a type whose package is not defined in any known module, then the module system will attempt to load it from the class path.
+W - The unnamed module can only access packages defined in the unnamed module
+W - We must add a module descriptor to make an application developed using a Java version prior to SE 9 run on Java 11
+C - The unnamed module exports all of its packages
+W - Code in an explicitly named module can access types in the unnamed module
+C - If a package is defined in both a named module and the unnamed module, then the package in the unnamed module is ignored
+ 
+Here's an excerpt from The State of the Module System, authored by Mark Reinhold - Oracle's Java platform chief architect:
+If a request is made to load a type whose package is not defined in any known module then the module system will attempt to load it from the class path. If this succeeds then the type is considered to be a member of a special module known as the unnamed module, so as to ensure that every type is associated with some module. The unnamed module is, at a high level, akin to the existing concept of 
+
+The unnamed module reads every other module. Code in any type loaded from the class path will thus be able to access the exported types of all other readable modules, which by default will include all of the named, built-in platform modules. An existing class-path application that compiles and runs on Java SE 8 will, thus, compile and run in exactly the same way on Java SE 9, so long as it only uses standard, non-deprecated Java SE APIs.
+
+The unnamed module exports all of its packages. This enables flexible migration, as we shall see below. It does not, however, mean that code in a named module can access types in the unnamed module. A named module cannot, in fact, even declare a dependence upon the unnamed module. This restriction is intentional, since allowing named modules to depend upon the arbitrary content of the class path would make reliable configuration impossible.
+
+If a package is defined in both a named module and the unnamed module then the package in the unnamed module is ignored. This preserves reliable configuration even in the face of the chaos of the class path, ensuring that every module still reads at most one module defining a given package.
+
+Ref: http://openjdk.java.net/projects/jigsaw/spec/sotms/#the-unnamed-module
+
 A(n) ________________ module can reference classes in a(n) _______________ module. 
 Assume the package is exported as needed. (Choose all that apply.)
 
@@ -428,8 +640,8 @@ Unnamed        Y        N           N
 Go through lambda rules:
 https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-15.27
 
-Collections & Streams:
 
+Collections & Streams:
 https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps
 
 Usecases:
@@ -2512,6 +2724,55 @@ class FooBar extends ParentFooBar {
   }
 }
 
+Tricky question-6: which is invalid lambda
+	public static void main(String[] args) throws Exception {
+		Supplier<Integer> s1 = () -> { 
+			boolean flag = true;
+			if (flag) { 
+			 return 0; 
+			} 
+			return 1; 
+		};
+		System.out.println(s1.get());
+		
+		Invalid Lambda
+		Supplier<Integer> s2 = () -> {
+			int i = 1;
+			if (i < 0) {
+			 System.out.println(i);
+			} else {
+			 return 1;
+			}
+		};
+		System.out.println(s2.get());
+		
+		
+		Supplier<Integer> s3 = () -> { 
+			if (false) return 10; 
+			else { 
+			 int result = 0; 
+			 for (int i = 1; i < 5; i++) {
+			   result *= i; }
+			 return result; 
+		} };
+		System.out.println(s3.get());
+		
+		
+		Supplier<Integer> s4 = () -> {
+			int i;
+			if(true)	return 10;
+			else 	i = 5;
+			return 20;
+		};
+		System.out.println(s4.get());
+		
+		Supplier<Integer> s5 = () -> {
+			int i = 10;
+			if (i > 0)	throw new RuntimeException();
+			else return i;
+		};
+		System.out.println(s5.get());
+	}
 
 
 Out of syllabus:
