@@ -256,7 +256,8 @@ new Danger() {} // won't work, final cannot be extended
 
 11. a) Interface default method can't be overriden as static method in a class that implements that interface
     b) Interface static method can be overriden as instance method in a class that implements that interface
-    c) Interface A has static method, same method overriden as instance method in class B implements A, then polymorphically can't invoke interface static method. 
+    c) Interface A has static method, same method overriden as instance method in class B implements A, then 
+		polymorphically can't invoke interface static method. 
     e.g A a = new B(); a.m(); leads to compiler error
     
     interface A {
@@ -273,6 +274,54 @@ new Danger() {} // won't work, final cannot be extended
 		- You can add instance method of a static method of an interface to a class implements that interface
 		  - cannot call that method dynamic polymorphic way. 
 			  e.g Interface i = new InterfaceImplClass(); i.method();
+
+13. Default Interface Method Definition Rules:
+    - Since Java 8.0
+    - why? 
+		  i) One motivation for adding default methods to the Java language was for backward compatibility. A default method 
+		  allows you to add a new method to an existing interface, without the need to modify older code that implements the interface. 
+			ii) Another motivation for adding default methods to Java is for convenience. For instance, the Comparator interface includes 
+			a default reversed() method that returns a new Comparator in the order reversed. While these can be written in every 
+			class implementing the interface, having it defined in the interface as a default method is quite useful.
+		- A default method may be declared only within an interface. 
+		- A default method must be marked with the default keyword and include a method body. 
+		- A default method is assumed to be public. 
+		- A default method cannot be marked abstract, final, or static. 
+		- A default method may be overridden by a class that implements the interface.
+		- If a class inherits two or more default methods with the same method signature, then the class must override the method.
+		- all of our conflicting methods had identical declarations. These rules also apply to methods with the same signature but 
+		  different return types or declared exceptions. If a default method is overridden in the concrete class, then it must use 
+			a declaration that is compatible, following the rules for overriding methods
+		- Calling a hidden default method in the syntax of Interface.super.defaultMethod() 
+
+14. Static Interface Method Definition Rules
+    - Since Java 8.0
+    - A static method must be marked with the static keyword and include a method body. 
+		- A static method without an access modifier is assumed to be public. 
+		- A static method cannot be marked abstract or final. 
+		- A static method is not inherited and cannot be accessed in a class implementing the interface without a reference to the
+		  interface name.
+		- Java “solved” the multiple inheritance problem of static interface methods by not allowing them to be inherited. This 
+		  applies to both subinterfaces and classes that implement the interface. For example, a class that implements two 
+			interfaces containing static methods with the same signature will still compile.
+
+15. Private Interface Method Definition Rules 
+    - Since Java 9.0
+    - why? private interface methods can be used to reduce code duplication.
+    - A private interface method must be marked with the private modifier and include a method body. 
+		- A private interface method may be called only by default and private (non- static) methods within the interface definition.
+
+16. Private Static Interface Method Definition Rules
+    - Since Java 9.0
+    - why? private static method to reduce code duplication
+		- A private static method must be marked with the private and static modifiers and include a method body. 
+		- A private static interface method may be called only by other methods within the interface definition.
+		- A private method cannot be called from a private static method.
+
+15. On Windows-based systems, it also requires that if absolute paths are used, then both paths must have the same root directory or drive letter. For example, the following would also throw an IllegalArgumentException on a Windows-based system: 
+    Path path3 = Paths.get("c:\\primate\\chimpanzee");
+    Path path4 = Paths.get("d:\\storage\\bananas.txt");
+    path3.relativize(path4); // IllegalArgumentException
 
 
 jdeps mods/apple.jar
