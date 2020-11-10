@@ -318,7 +318,43 @@ new Danger() {} // won't work, final cannot be extended
     - A private static interface method may be called only by other methods within the interface definition.
     - A private method cannot be called from a private static method.
 
-15. On Windows-based systems, it also requires that if absolute paths are used, then both paths must have the same root directory or drive letter. For example, the following would also throw an IllegalArgumentException on a Windows-based system: 
+17. Overriding rules on interface
+    - @Override on static method not allowed
+		- default method cannot be overriden as static method
+		- default method can be overriden as abstrac method
+		- default method can be overriden as default method
+		
+Interface Overriding Rules
+   PARENT    CHILD    COMPILER   REASON
+                       STATUS
+  default   default   -- OK
+
+	default   static    -- NOT OK  Default method bounds to an instance, so, static can't be. Otherwise it 
+                                 would break polymorphism of an object, hence not allowed
+
+  default   abstract  -- OK      This is ok because, class implementing the child interface provides definition
+                                 for the abstract method, hence it becomes instance member method
+
+  default   @Override -- OK      Adding @Override annotation allowed as long as it follows correct overriding rule
+	
+	static		default   -- OK      Allowed due to compiler ignores static override, but need to be careful when calling
+                                 method dynamic polymorphically. 
+                                 e.g ParentInterface o1 = new ChildClassIntfImpl();
+                                 o1.method(); // compiler not happy due to this method decalred as static in ParentInterface
+                                 ParentInterface.method(); // OK
+                                 ChildClassIntfImpl o2 = new ChildClassIntfImpl();
+                                 o2.method();  // OK
+
+  static    static	  -- OK      Allowed due to compiler ignores static override, but invoking memeber 
+                                 must be called by corresponding interface name. e.g Foo.staticMethod();
+
+  static    abstract  -- OK      Allowed due to compiler ignores static override, but invoking memeber 
+                                 must be called by corresponding interface name. e.g Foo.staticMethod();
+
+  static    @Override -- NOT OK  Compiler ignores static override by default, adding annotation leads to compiler error
+		
+
+18. On Windows-based systems, it also requires that if absolute paths are used, then both paths must have the same root directory or drive letter. For example, the following would also throw an IllegalArgumentException on a Windows-based system: 
     Path path3 = Paths.get("c:\\primate\\chimpanzee");
     Path path4 = Paths.get("d:\\storage\\bananas.txt");
     path3.relativize(path4); // IllegalArgumentException
@@ -369,25 +405,23 @@ java --show-module-resolution -p feeding -m zoo.animal.feeding/zoo.animal.feedin
 The jar Command
 
 Describing a module:
-
 jar -f mods/zoo.animal.feeding.jar -d
-Alternate form of describing a module:
 
+Alternate form of describing a module:
 jar --file mods/zoo.animal.feeding.jar --describe-module
 
 The jdeps Command
 
 Listing dependencies
-
 jdeps -s mods/zoo.animal.feeding.jar
+
 Alternate form of listing dependencies:
-
 jdeps -summary mods/zoo.animal.feeding.jar
+
 Listing dependencies with module path
-
 jdeps -s --module-path mods mods/zoo.animal.care.jar
-Alternate form of listing dependencies with module path
 
+Alternate form of listing dependencies with module path
 jdeps -summary --module-path mods mods/zoo.animal.care.jar
 
 JPMS
@@ -395,7 +429,7 @@ JPMS
 - class path vs module path
 - Unnamed module
   - regular jar
-  - on module-path
+  - on class-path
   - don't export any packages to named/automatic modules
   - read from any jar on class/module-path
   
