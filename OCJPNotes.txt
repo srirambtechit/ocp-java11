@@ -725,11 +725,20 @@ unnamed module exports everything
 automatic module exports everything too
 no wildcards/regex style for module declaration
 
+# Java modules deep dive tools
 java -Xdiag:resolver -p mods -m module.name/pkg.to.main.Class
+
+# Generate dotfiles from jar file
+java --module-path mods -R --dot-outfile dot-files mods/banana.jar
+# Install pre-req
+brew install graphviz
+# Convert dot to png format
+dot -Tpng banana.dot -o banana.png
+# To view image
+qlmanage -p banana.png
 
 Go through lambda rules:
 https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-15.27
-
 
 Collections & Streams:
 https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps

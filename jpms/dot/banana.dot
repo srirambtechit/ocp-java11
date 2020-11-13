@@ -1,0 +1,7 @@
+digraph "banana" {
+    // Path: /Users/srirammuthaiah/Coding/TextMate/jpms/mods/banana.jar
+   "pkg.banana"                                       -> "java.io (java.base)";
+   "pkg.banana"                                       -> "java.lang (java.base)";
+   "pkg.banana"                                       -> "java.lang.invoke (java.base)";
+   "pkg.banana"                                       -> "pkg.spi (service)";
+}

@@ -1,0 +1,5 @@
+digraph "summary" {
+  "service"                                          -> "java.base (java.base)";
+  "banana"                                           -> "java.base (java.base)";
+  "banana"                                           -> "service";
+}

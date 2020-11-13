@@ -1,0 +1,4 @@
+digraph "service" {
+    // Path: /Users/srirammuthaiah/Coding/TextMate/jpms/mods/service.jar
+   "pkg.spi"                                          -> "java.lang (java.base)";
+}
