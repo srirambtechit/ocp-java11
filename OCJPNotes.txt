@@ -320,24 +320,24 @@ new Danger() {} // won't work, final cannot be extended
 
 17. Overriding rules on interface
     - @Override on static method not allowed
-		- default method cannot be overriden as static method
-		- default method can be overriden as abstrac method
-		- default method can be overriden as default method
-		
+    - default method cannot be overriden as static method
+    - default method can be overriden as abstrac method
+    - default method can be overriden as default method
+    
 Interface Overriding Rules
    PARENT    CHILD    COMPILER   REASON
                        STATUS
   default   default   -- OK
 
-	default   static    -- NOT OK  Default method bounds to an instance, so, static can't be. Otherwise it 
+  default   static    -- NOT OK  Default method bounds to an instance, so, static can't be. Otherwise it 
                                  would break polymorphism of an object, hence not allowed
 
   default   abstract  -- OK      This is ok because, class implementing the child interface provides definition
                                  for the abstract method, hence it becomes instance member method
 
   default   @Override -- OK      Adding @Override annotation allowed as long as it follows correct overriding rule
-	
-	static		default   -- OK      Allowed due to compiler ignores static override, but need to be careful when calling
+  
+  static    default   -- OK      Allowed due to compiler ignores static override, but need to be careful when calling
                                  method dynamic polymorphically. 
                                  e.g ParentInterface o1 = new ChildClassIntfImpl();
                                  o1.method(); // compiler not happy due to this method decalred as static in ParentInterface
@@ -345,14 +345,14 @@ Interface Overriding Rules
                                  ChildClassIntfImpl o2 = new ChildClassIntfImpl();
                                  o2.method();  // OK
 
-  static    static	  -- OK      Allowed due to compiler ignores static override, but invoking memeber 
+  static    static    -- OK      Allowed due to compiler ignores static override, but invoking memeber 
                                  must be called by corresponding interface name. e.g Foo.staticMethod();
 
   static    abstract  -- OK      Allowed due to compiler ignores static override, but invoking memeber 
                                  must be called by corresponding interface name. e.g Foo.staticMethod();
 
   static    @Override -- NOT OK  Compiler ignores static override by default, adding annotation leads to compiler error
-		
+    
 
 18. On Windows-based systems, it also requires that if absolute paths are used, then both paths must have the same root directory or drive letter. For example, the following would also throw an IllegalArgumentException on a Windows-based system: 
     Path path3 = Paths.get("c:\\primate\\chimpanzee");
@@ -465,7 +465,7 @@ JPMS
     - move C to mod path (named), A and B still be in class path (unnamed)
     - add module-info, exports, requires, etc, no worry about dep as it is not having one dep
     - move B to mod path (named), A still be in class path, C already on mod path
-    - move C to mod path (named)
+    - move A to mod path (named)
     - All jars are now modular
   - TOP-DOWN
     - reason: not all jars are owned by us, have dep with other team
@@ -486,7 +486,7 @@ JPMS
      |       |      |
      |       |      |
      |       |      |
-     v       |       |
+     v       |      |
      SP <-- SL <----+  
 
 Consider all 4 modules designed independently
@@ -607,9 +607,9 @@ Sample:-
       }                 |       }
                         |
     output:             |     output:
-     stock@2345         |    {
-                        |     "stock": "$1,230"
-                        |    }
+     stock@2345         |     {
+                        |      "stock": "$1,230"
+                        |     }
 
 app-dev team
 dev1
@@ -618,6 +618,7 @@ module b {
 }
 
 b -> a [ -> a.util ]
+       optional for b
 
 Few more points on JPMS:
  - jmods & modular jar
@@ -650,8 +651,8 @@ Few more points on JPMS:
  - class talks about logic or internals
  - services:
    - provides loose coupling
-   - 1 module request implements of an interface
-   - other module provides and implementation
+   - 1 module request implementation of an interface
+   - other module provides implementation
 
 Useful resources:
 1. An Early look at Java 9 Modules by BenEvans
@@ -719,6 +720,12 @@ Automatic      Y        N           Y
                   
 Unnamed        Y        N           N       
 
+unnamed module implicitly requires every other unnamed module
+unnamed module exports everything
+automatic module exports everything too
+no wildcards/regex style for module declaration
+
+java -Xdiag:resolver -p mods -m module.name/pkg.to.main.Class
 
 Go through lambda rules:
 https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-15.27
@@ -882,6 +889,97 @@ While the findAny() operation often returns the first result on a serial stream,
 First, all of these lines compile. ArrayList, HashSet, and LinkedList are all allowed to contain null. However, a TreeSet is not, and line 28 throws a NullPointerException at runtime. 
 
 The findFirst() method guarantees the first element in the stream will be returned, whether it is serial or parallel.
+
+Functional Interface
+// Assignment context
+Predicate<String> p = String::isEmpty;
+
+// Method invocation context
+stream.filter(e -> e.getSize() > 10)...
+
+// Cast context
+stream.map((ToIntFunction) e -> e.getSize())...
+
+
+package java.util.function;                  |
+                                             |
+@FunctionalInterface                         |
+public interface ObjIntConsumer<T> {         |   
+    public void accept(T var1, int var2);    |---> T, int -> void ObjIntConsumer
+}                                            |
+                                             |
+@FunctionalInterface                         |
+public interface IntFunction<R> {            |
+    public R apply(int var1);                |---> int -> R        IntFunction
+}                                            |
+                                             |
+@FunctionalInterface                         |
+public interface ToIntFunction<T> {          |
+    public int applyAsInt(T var1);           |---> T -> int        ToIntFunction
+}                                            |
+                                             |
+@FunctionalInterface                         |
+public interface IntToDoubleFunction {       |
+    public double applyAsDouble(int var1);   |---> int -> double   IntToDoubleFunction
+}                                            |
+                                             |
+
+43 - Funcational interface in Java 11
+OBJECT                                                            PRIMITIVES
+obj-15                    int-8                     long-8                   double-8               boolean-1
+Predicate<T>            IntPredicate            LongPredicate             DoublePredicate         BooleanSupplier
+Supplier<T>             IntSupplier             LongSupplier              DoubleSupplier
+Function<T,​R>           IntFunction<R>          LongFunction<R>           DoubleFunction<R>
+Consumer<T>             IntConsumer             LongConsumer              DoubleConsumer
+                        IntUnaryOperator        LongUnaryOperator         DoubleUnaryOperator
+BinaryOperator<T>       IntBinaryOperator       LongBinaryOperator        DoubleBinaryOperator
+UnaryOperator<T>        IntToLongFunction       LongToIntFunction         DoubleToIntFunction
+                        IntToDoubleFunction     LongToDoubleFunction      DoubleToLongFunction
+BiConsumer<T,​U>
+BiFunction<T,​U,​R>
+BiPredicate<T,​U>
+
+ToDoubleBiFunction<T,​U>                             Mix-3
+ToDoubleFunction<T>                           ObjDoubleConsumer<T>
+ToIntBiFunction<T,​U>                          ObjIntConsumer<T>
+ToIntFunction<T>                              ObjLongConsumer<T>
+ToLongBiFunction<T,​U>
+ToLongFunction<T>
+
+Function<T, R>
+f(x)
+g(x)
+
+compose f(g(x))
+andThen g(f(x))
+
+identity - Fn that doesn't affect the value
+e.g:
+one more input (operand) that shouldn't be affecting the given operand
+given operand x = 3
+
+                f(x)              Identity
+           /   addition           0
+  binary   |   multiplication     1
+ operation |   division           1
+           \   subtraction        0
+
+3 + 1 = 4
+3 + 0 = 3
+
+How Fn Interface designed?
+
+How Fn interface parameter types structured?
+left-to-right, etc
+
+Method Naming pattern
+function/transformation/mapping -- apply()
+consume                         -- accept()
+predicate                       -- test()
+supply/produce                  -- get()
+
+getAsType (getAsInt, getAsLong, getAsDouble)
+applyAsType (applyAsInt, ...)
 
 Java Stream APIs:
 Stream
@@ -1135,11 +1233,11 @@ class C extends B {}
                 ^
                 |
                 |    ^
-                E    |          | List<? extends D> list = new ArrayList<A|B|C|D>();
-                ^    |          | D and its kids are welcome
-                |    |          | sets upper boundary
-                |    |          |
-       extends  D  super        |
+                E    |         | List<? extends D> list = new ArrayList<A|B|C|D>();
+                ^    |         | D and its kids are welcome
+                |    |         | sets upper boundary
+                |    |         |
+       extends  D  super       |
        (upper)  | (lower)      |
           ^     |              |
           |     v              | List<? super D> list = new ArrayList<D|E|F|G|Object>();
@@ -2906,5 +3004,3 @@ https://www.udemy.com/course/java-se-11-developer-1z0-819-ocp-course-part-2/
 https://www.udemy.com/course/java-se-11-developer-1z0-819-ocp-course-part-1/
 
 https://javarevisited.blogspot.com/2019/07/top-4-java-11-certification-free-mock-exams-practice-tests-ocajp11-ocpjp11-1z0-815-16-questions.html#axzz6caKquqji
-
-

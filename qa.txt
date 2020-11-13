@@ -302,3 +302,28 @@ https://blogs.oracle.com/certification/your-guide-to-oracle-certification-testin
 
 secure code:
 https://owasp.org/www-project-top-ten/
+
+
+Book
+Topic Mock1 Mock2 Mock3 Mock4
+  1     y     y
+  3     y     y
+  4     y     y
+  5     y
+  6     y
+  7     y
+  9     y
+BE1     y
+BE2     y
+BE3     y
+
+
+
+Whizlab
+QnSet  Mock1 Mock2 Mock3 Mock4 Mock5 Mock6
+FT       y     y     y
+S1       y     y     
+S2       y     y
+S3       y     y
+
+
