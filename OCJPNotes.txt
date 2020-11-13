@@ -729,7 +729,7 @@ no wildcards/regex style for module declaration
 java -Xdiag:resolver -p mods -m module.name/pkg.to.main.Class
 
 # Generate dotfiles from jar file
-java --module-path mods -R --dot-outfile dot-files mods/banana.jar
+jdeps --module-path mods --dot-output dot-files/ -R mods/banana.jar
 # Install pre-req
 brew install graphviz
 # Convert dot to png format
