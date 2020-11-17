@@ -178,9 +178,8 @@ W - 9
 ----------
 
 CH 6: #15
-Suppose you have separate modules for a service provider interface, service provider, service locator, and consumer. Which module(s) need to specify a requires directive
-on the service provider?  
-A) Service locator 
+Suppose you have separate modules for a service provider interface, service provider, service locator, and consumer. Which module(s) need to specify a requires directive on the service provider?  
+A) Service locator
 B) Service provider interface 
 C) Consumer 
 D) Consumer and service locator 
@@ -188,6 +187,8 @@ E) Consumer and service provider
 F) Service locator and service provider interface 
 G) Consumer, service locator, and service provider interface 
 H) None of the above
+
+Answer: H
 
 service loader pattern
 familiarize with jdk modules
@@ -305,25 +306,25 @@ https://owasp.org/www-project-top-ten/
 
 
 Book
-Topic Mock1 Mock2 Mock3 Mock4
+Topic Mock1 Mock2
   1     y     y
   3     y     y
   4     y     y
-  5     y
-  6     y
-  7     y
-  9     y
-BE1     y
-BE2     y
-BE3     y
-
+  5     y     y
+  6     y     y
+  7     y     y
+  9     y     y
+BE1     y     y
+BE2     y     y
+BE3     y     y
+ AT     y     y
 
 
 Whizlab
-QnSet  Mock1 Mock2 Mock3 Mock4 Mock5 Mock6
+QnSet  Mock1 Mock2 Mock3
 FT       y     y     y
-S1       y     y     
-S2       y     y
-S3       y     y
+S1       y     y     y     
+S2       y     y     y
+S3       y     y     y
 
 

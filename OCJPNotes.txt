@@ -514,6 +514,8 @@ service provider
    - provides spi with fqcn
      (provides interfaceName with ImplclassName;)
 
+A service consists of the service provider interface and logic to look up implementations using a service locator. This makes option D correct. Make sure you know that the service provider itself is the implementation, which is not considered part of the service.
+
 Any version information at the end of the JAR filename is removed, making options A and B correct. Underscores (_) are turned into dots (.), making options C and D incorrect. Other special characters like a dollar sign ($) are also turned into dots. However, adjacent dots are merged, and leading/trailing dots are removed. 
 
 Compiled from "ServiceLoader.java"
@@ -836,59 +838,59 @@ IntStream: input is always "int"
   DoubleStream mapToDouble(IntToDoubleFunction) int -> double
   Stream<T>    mapToObj(IntFunction)            int -> T
 
------------------+-----------------------------------------+------------------------------------------+
-                 | STREAMS                                 | PRIMITIVE STREAMS                        |
------------------+-----------------------------------------+------------------------------------------+
-1. handles       | objects                                 | int                                      |
-                 |                                         | long                                     |
-                 |                                         | double                                   |
-                 |                                         |                                          |
-2. generate      | generate(Supplier)                      | Int/Long - generate()                    |
-                 | iterate(T t, Function fn)               | Int/Long/Double - iterate()              |
-                 | of()                                    |                                          |
-                 |                                         |                                          |
-3. convers       | mapToInt()    T -> int                  | mapToObj()  int/long/double -> T         |
-                 | mapToLong()   T -> long                 |                                          |
-                 | mapToDouble() T -> double               |                                          |
-                 |                                         |                                          |
-4. utils         | count()                                 | sum()                                    |
-                 |                                         | average()                                |
-                 |                                         | count()                                  |
-                 |                                         | min()                                    |
-                 |                                         | max()                                    |
-                 |                                         | summaryStatistics                        |
-                 |                                         |                                          |
-5. reduces       | Optional reduce(BinaryOperator)         | OptionalInt reduce​(IntBinaryOperator op) |
-                 |                                         |                                          |
-                 | T reduce(                               |                                          |
-                 |     T identity,                         | int reduce​(int identity,                 |
-                 |     BinaryOperator accumulator)         |            IntBinaryOperator op)         |
-                 |                                         |                                          |
-                 | <U> U reduce(                           |                                          |
-                 |     U identity,                         |                                          |
-                 |     BiFunction accumulator              |                                          |
-                 |     BinaryOperator combiner)            |                                          |
-                 |                                         |                                          |
-6. drop/take     | dropWhile(Predicate)                    | dropWhile(Int/Long/DoublePredicate)      |
-                 | takeWhile(Predicate)                    | takeWhile(Int/Long/DoublePredicate)      |
-                 |                                         |                                          |
-7. Optional      | Optional findAny()                      | OptionalDouble average()                 |
-   return types  | Optional findFirst()                    | OptionalInt findAny()                    |
-                 | Optional min(Comparator c)              | OptionalInt findFirst()                  |
-                 | Optional max(Comparator c)              | OptionalInt min(Comparator c)            |
-                 | Optional reduce(BinaryOperator op)      | OptionalInt max(Comparator c)            |
-                 |                                         | OptionalInt reduce(IntBinaryOperator op) |
-                 |                                         |                                          |
-8. Collect       | <R> R                                   | <R> R collect​(Supplier<R> supplier,      |
-                 |  collect​(Supplier<R> supplier,          |       ObjIntConsumer<R> accumulator,     |
-                 |    BiConsumer<R,​? super T> accumulator, |       BiConsumer<R,​R> combiner)          |
-                 |    BiConsumer<R,​R> combiner)            |                                          |
-                 |                                         |                                          |
-                 |  <R,​A>                                  |                                          |
-                 |  R  collect​(                            |                                          |
-                 |   Collector<? super T,​A,​R> collector)   |                                          |
-                 |                                         |                                          |
------------------+-----------------------------------------+------------------------------------------+
++------------------+-----------------------------------------+------------------------------------------+
+|                  | STREAMS                                 | PRIMITIVE STREAMS                        |
++------------------+-----------------------------------------+------------------------------------------+
+| 1. handles       | objects                                 | int                                      |
+|                  |                                         | long                                     |
+|                  |                                         | double                                   |
+|                  |                                         |                                          |
+| 2. generate      | generate(Supplier)                      | Int/Long - generate()                    |
+|                  | iterate(T t, Function fn)               | Int/Long/Double - iterate()              |
+|                  | of()                                    |                                          |
+|                  |                                         |                                          |
+| 3. convers       | mapToInt()    T -> int                  | mapToObj()  int/long/double -> T         |
+|                  | mapToLong()   T -> long                 |                                          |
+|                  | mapToDouble() T -> double               |                                          |
+|                  |                                         |                                          |
+| 4. utils         | count()                                 | sum()                                    |
+|                  |                                         | average()                                |
+|                  |                                         | count()                                  |
+|                  |                                         | min()                                    |
+|                  |                                         | max()                                    |
+|                  |                                         | summaryStatistics                        |
+|                  |                                         |                                          |
+| 5. reduces       | Optional reduce(BinaryOperator)         | OptionalInt reduce​(IntBinaryOperator op) |
+|                  |                                         |                                          |
+|                  | T reduce(                               |                                          |
+|                  |     T identity,                         | int reduce​(int identity,                 |
+|                  |     BinaryOperator accumulator)         |            IntBinaryOperator op)         |
+|                  |                                         |                                          |
+|                  | <U> U reduce(                           |                                          |
+|                  |     U identity,                         |                                          |
+|                  |     BiFunction accumulator              |                                          |
+|                  |     BinaryOperator combiner)            |                                          |
+|                  |                                         |                                          |
+| 6. drop/take     | dropWhile(Predicate)                    | dropWhile(Int/Long/DoublePredicate)      |
+|                  | takeWhile(Predicate)                    | takeWhile(Int/Long/DoublePredicate)      |
+|                  |                                         |                                          |
+| 7. Optional      | Optional findAny()                      | OptionalDouble average()                 |
+|    return types  | Optional findFirst()                    | OptionalInt findAny()                    |
+|                  | Optional min(Comparator c)              | OptionalInt findFirst()                  |
+|                  | Optional max(Comparator c)              | OptionalInt min(Comparator c)            |
+|                  | Optional reduce(BinaryOperator op)      | OptionalInt max(Comparator c)            |
+|                  |                                         | OptionalInt reduce(IntBinaryOperator op) |
+|                  |                                         |                                          |
+| 8. Collect       | <R> R                                   | <R> R collect​(Supplier<R> supplier,      |
+|                  |  collect​(Supplier<R> supplier,          |       ObjIntConsumer<R> accumulator,     |
+|                  |    BiConsumer<R,​? super T> accumulator, |       BiConsumer<R,​R> combiner)          |
+|                  |    BiConsumer<R,​R> combiner)            |                                          |
+|                  |                                         |                                          |
+|                  |  <R,​A>                                  |                                          |
+|                  |  R  collect​(                            |                                          |
+|                  |   Collector<? super T,​A,​R> collector)   |                                          |
+|                  |                                         |                                          |
++------------------+-----------------------------------------+------------------------------------------+
 
 
 The limit(), skip(), forEachOrdered(), and findFirst() methods produce the same results, regardless of whether the stream is serial or parallel. There may be a performance cost with using them on a parallel stream, though, as the stream is forced into a single-threaded operation. 
@@ -2313,9 +2315,9 @@ including suppressed exception.
 Assertions:-
 -ea or -enableassertions
 -da or -disableassertions
-
--ea:com.pkg... (package and its subpackage level)
--da:com.pkg... 
+-ea:packagename...  all package and its subpackages
+-ea:classname       only specific class
+-ea:...             all unnamed package in the current working directory
 
 assert condition
 assert condition: message
