@@ -2597,6 +2597,8 @@ if default Locale is en_US, but requested en_CA bundle
  Zoo_en_CA -> Zoo_en -> Zoo
 if default Locale is en_US, but requested fr_CA bundle
  Zoo_fr_CA -> Zoo_fr -> Zoo_en -> Zoo
+if default Locale is en_US, but requested fr bundle
+ Zoo_fr -> Zoo
 */
 
 String string = "Hello, Mr. {1}, {0}";
