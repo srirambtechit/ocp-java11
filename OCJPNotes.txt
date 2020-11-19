@@ -3017,3 +3017,65 @@ https://www.udemy.com/course/java-se-11-developer-1z0-819-ocp-course-part-2/
 https://www.udemy.com/course/java-se-11-developer-1z0-819-ocp-course-part-1/
 
 https://javarevisited.blogspot.com/2019/07/top-4-java-11-certification-free-mock-exams-practice-tests-ocajp11-ocpjp11-1z0-815-16-questions.html#axzz6caKquqji
+
+
+qst 1:
+    Consumer<String> c1 = s -> System.out.println(s);
+    c1.accept("hello 1");
+    Consumer<String> c2 = s -> System.out.println(s);
+    c2.accept("hello 2");
+    c2.accept("hello 2 again");
+    c1.andThen(c2).accept("hello again");
+Ans: 
+hello 1
+hello 2
+hello 2 again
+hello again
+hello again
+
+qst 2:
+    Path source = Path.of("/tmp/root/test.txt");
+    Path dest = Path.of("/tmp/a/");
+    Files.move(source, dest);
+    System.out.println("done");
+Ans: 
+creates a file called a at /tmp location
+
+qst 3: Compilation failed?
+    Stream.of(1,2,3)
+      .map((e -> e * 2))              // note (expression) used
+      .map((Integer::toBinaryString)) // note (expression) used
+      .forEach(System.out::println);
+Ans:
+10
+100
+110
+
+qst 4:
+    what does jdeps -jdkinternals do?
+    1. checks usage of jdk internal api in every classes of the module
+    2. checks usage of jdk internal api in every packages of the module    
+    3. checks usage of jdk internal api in every other dependent modules of the module
+Ans: 1
+
+qst 5:
+    using jdeps analyzing modular jars with non-modular jars, what are the following
+    options can be valid? (Choose 3)
+    1. -cp
+    2. --class-path
+    3. --module-path
+    4. -classpath
+    5. --module
+Ans: 1,2,4
+
+qst 6: what is the output if running in parallel?
+    Optional<Integer> result = List.of(7, 9, 5, 4, 3)
+      .stream()
+      .filter(e -> e < 5)
+      .findAny();
+    System.out.println(result.get());
+    1. always same result
+    2. NoSuchElementException
+    3. always differnt result
+    4. Nothing is printer
+Ans: 3
