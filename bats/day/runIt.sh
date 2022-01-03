@@ -1,2 +1,4 @@
-javac Sample.java
-java Sample
+# javac Sample.java
+# java Sample
+
+java Sample.java
